@@ -1,0 +1,9 @@
+package walter2;
+
+import java.util.*;
+
+public class StaticUtil {
+	public static boolean foo(String[] args, Comparator c) {
+		return true;
+	}
+}

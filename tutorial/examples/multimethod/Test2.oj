@@ -1,0 +1,20 @@
+package examples.multimethod;
+
+import java.awt.*;
+
+public class Test2 instantiates MultimethodClass
+{
+
+    public multiform void foo( Panel a ) {
+        System.out.println( "panel" );
+    }
+
+    public multiform void foo( Button a ) {
+        System.out.println( "button" );
+    }
+
+    public multiform void foo( Canvas a ) {
+        System.out.println( "canvas" );
+    }
+
+}

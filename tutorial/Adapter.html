@@ -1,0 +1,258 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN"> 
+<html>
+
+
+<head>
+<title>OpenJava : Tutorial</title>
+<meta http-equiv="Keywords" content="java, openjava, reflection">
+</head>
+
+
+<body bgcolor="white"
+        text="#000000" link="#007fff" vlink="#006fdf" alink="#ff0000">
+
+
+<!---------------------------------------------------------------------->
+
+
+<center>
+
+<h1><font color="Blue">OpenJava Tutorial</font></h1>
+
+</center>
+
+
+<!---------------------------------------------------------------------->
+<hr width="100%">
+<!---------------------------------------------------------------------->
+
+
+<h2>6. <font color="blue">Callee-side Translation</font></h2>
+
+
+<p>In this section, an example of simple translation at <i>callee-side</i>
+is described.
+
+
+<h3>6.1. What the base-level program should look like</h3>
+
+<br><blockquote><pre><font color=darkblue>
+import java.util.*;
+public class <font color=black>VectorStack</font> <b>instantiates <font color=black>AdapterClass</font></b>
+      	<b>adapts <font color=black>Vector</font> in v to <font color=black>Stack</font></b>
+{
+    <font color=black>Vector</font> v;
+    public <font color=black>VectorStack</font>( <font color=black>Vector</font> v ) {
+	this.v = v;
+    }
+    public <font color=black>void</font> push( <font color=black>Object</font> o ) {
+	v.addElement( o );
+    }
+    public <font color=black>Object</font> pop() {
+	<font color=black>Object</font> result = peek();
+	v.removeElementAt( v.size() - 1 );
+	return result;
+    }
+    public <font color=black>Object</font> peek() {
+        return v.elementAt( v.size() - 1 );
+    }
+}
+</font></pre></blockquote>
+
+<br><blockquote><pre><font color=darkblue>
+public interface <font color=black>Stack</font>
+{
+    public <font color=black>int</font> size();
+    public <font color=black>boolean</font> isEmpty();
+    public <font color=black>Enumeration</font> elements();
+    public <font color=black>Object[]</font> toArray();
+    public <font color=black>int</font> hashCode();
+    public <font color=black>void</font> push( <font color=black>Object</font> o );
+    public <font color=black>Object</font> pop();
+    public <font color=black>Object</font> peek();
+}
+</font></pre></blockquote>
+
+
+<h3>6.2. What the base-level program should be translated</h3>
+
+<p>Like following:
+<br><blockquote><pre><font color=darkblue>
+import java.util.*;
+public class <font color=black>VectorStack</font> implements <font color=black>Stack</font>
+{
+    <font color=black>Vector</font> v;
+    public <font color=black>VectorStack</font>( <font color=black>Vector</font> v ) {
+	this.v = v;
+    }
+    public <font color=black>void</font> push( <font color=black>Object</font> o ) {
+	v.addElement( o );
+    }
+    public <font color=black>Object</font> pop() {
+	<font color=black>Object</font> result = peek();
+	v.removeElementAt( v.size() - 1 );
+	return result;
+    }
+    public <font color=black>Object</font> peek() {
+        return v.elementAt( v.size() - 1 );
+    }
+    <b>public <font color=black>Object[]</font> toArray() {</b>
+        <b>return v.toArray();</b>
+    <b>}</b>
+    <b>public <font color=black>int</font> size() {</b>
+        <b>return v.size();</b>
+    <b>}</b>
+    <b>public <font color=black>Enumeration</font> elements() {</b>
+        <b>return v.elements();</b>
+    <b>}</b>
+    <b>public <font color=black>boolean</font> isEmpty() {</b>
+        <b>return v.isEmpty();</b>
+    <b>}</b>
+    <b>public <font color=black>int</font> hashCode() {</b>
+        <b>return v.hashCode();</b>
+    <b>}</b>
+}
+</font></pre></blockquote>
+
+
+<h3>6.3. Write a meta-level program</h3>
+
+<br><blockquote><pre><font color=darkblue>
+import openjava.mop.*;
+import openjava.ptree.*;
+import openjava.syntax.*;
+
+/**
+ * The metaclass <code>AdapterClass</code> supports classes
+ * implementing an adapter role of the Adapter pattern.
+ * The target's methods with same signatures as the adaptee's are
+ * automatically implemented into the adapter class.
+ */
+public class AdapterClass instantiates Metaclass extends OJClass
+{
+
+    public static final String KEY_ADAPTS = "adapts";
+
+    /* overrides for translation */
+    public void translateDefinition() throws MOPException {
+	OJClass target = getTarget(), adaptee = getAdaptee();
+        if (target == null || adaptee == null)  return;
+
+        /* implicit forwarding to the same signature's */
+        OJMethod[] adapteds = adaptee.getMethods( this );
+        for (int i = 0; i < adapteds.length; ++i) {
+            /* picks up the method with same signature */
+	    OJMethod m;
+	    try {
+		m = getTarget().getMethod( adapteds[i].getName(),
+					   adapteds[i].getParameterTypes(),
+					   this );
+	    } catch ( NoSuchMemberException e ) { /* not match */ continue; }
+            
+            /* generate a forwarding method with forwarded's name */
+            addMethod( makeForwardingMethod( m.getName(), m ) );
+        }
+
+	addInterface( getTarget() );
+    }
+
+    /**
+     * Generates a forwarding method with specified name.
+     *
+     * @param  name  generating method's name.
+     * @param forwarded  method to which the generated method forwards.
+     * @return  a generated forwarding method.
+     */
+    private OJMethod makeForwardingMethod( String name, OJMethod forwarded )
+        throws MOPException
+    {
+        /* generates a new method without body */
+	OJMethod result = new OJMethod(
+	    this,
+	    forwarded.getModifiers().remove( OJModifier.ABSTRACT ),
+	    forwarded.getReturnType(),
+	    name,
+	    forwarded.getParameterTypes(),
+	    forwarded.getExceptionTypes(),
+	    null
+	    );
+
+	/* generates a method call and return statement */
+	ExpressionList params = result.getParameterVariables();
+        Expression expr = new MethodCall( getContainer(), name, params );
+        StatementList body = new StatementList();
+        if (forwarded.getReturnType() == OJSystem.VOID) {
+            body.add( new ExpressionStatement( expr ) );
+            body.add( new ReturnStatement() );
+        } else {
+            body.add( new ReturnStatement( expr ) );
+        }
+
+	result.setBody( body );
+        return result;
+    }
+
+    /* extended information */
+
+    private OJClass getAdaptee() throws MOPException {
+        ObjectList suffix = (ObjectList) getSuffix( KEY_ADAPTS );
+	return OJClass.forName( suffix.get( 0 ).toString() );
+    }
+
+    private Variable getContainer() throws MOPException {
+        ObjectList suffix = (ObjectList) getSuffix( KEY_ADAPTS );
+	return new Variable( suffix.get( 1 ).toString() );
+    }
+
+    private OJClass getTarget() throws MOPException {
+        ObjectList suffix = (ObjectList) getSuffix( KEY_ADAPTS );
+	return OJClass.forName( suffix.get( 2 ).toString() );
+    }
+
+    /* override to extend syntax */
+    public static boolean isRegisteredKeyword( String keyword ) {
+        return keyword.equals( KEY_ADAPTS );
+    }
+
+    /* override to extend syntax */
+    public static SyntaxRule getDeclSuffixRule( String keyword ) {
+	if (keyword.equals( KEY_ADAPTS )) {
+	    return new CompositeRule(
+                new TypeNameRule(),
+		new PrepPhraseRule( "in", new NameRule() ),
+		new PrepPhraseRule( "to", new TypeNameRule() ) );
+	}
+	return null;
+    }
+
+}
+
+</font></pre></blockquote>
+
+
+<!---------------------------------------------------------------------->
+<hr width="100%">
+<!---------------------------------------------------------------------->
+
+
+<center>
+
+Please send any message to :
+<address>
+mich@acm.org
+</address><BR>
+
+</center>
+
+
+<font size=1>Copyright (C) 1999 by Michaki Tatsubori.</font><br>
+<font size=1>Java(TM) is a trademark of Sun Microsystems, Inc.</font>
+
+
+<!---------------------------------------------------------------------->
+
+
+</body>
+
+
+</html>

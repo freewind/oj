@@ -1,0 +1,7 @@
+import nopub;
+
+public class Pub {
+}
+
+class B {
+}

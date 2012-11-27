@@ -1,0 +1,25 @@
+import smyth;
+
+public distributed class BankAccount instantiates MDistributed {
+	private int balance = 100;
+
+	public BankAccount() {
+		super();
+	}
+
+	public int getBalance() {
+		return balance;
+	}
+
+	public void deposit(int d) {
+		System.out.println(d);
+		balance += d;
+		System.out.println(d + " has been deposited in your account.");
+	}
+
+	public void withdraw(int w) {
+		System.out.println(w);
+		balance -= w;
+		System.out.println(w + " has been withdrawn from your account.");
+	}
+}

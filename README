@@ -1,0 +1,86 @@
+README
+OpenJava 1.1 build 20030219
+Feb 19, 2003
+by Michiaki Tatsubori  mich@acm.org
+
+
+OpenJava is an extensible language based on Java(TM). The OpenJava MOP
+(Metaobject Protocol) is the extension interface of the language.
+Through the MOP, the programmers can customize the language to
+implement a new language mechanism.
+
+OpenJava helps people who want to develop better Java libraries, that
+is, easy-to-use and efficient ones.  It also helps people who are
+developing their own extended Java languages.  OpenJava can be regarded
+as a toolkit for constructing a Java preprocessor.
+
+
+** How to set up OpenJava
+
+This directory contains the OpenJava version 1.0a release in both source
+and bytecode form.  You should find the following files and subdirectories
+in this release:
+
+   README        This file.
+   COPYRIGHT     Copyright notices are described in this text file.
+   src/          OpenJava source files in Java-packaged form.
+   classes/      OpenJava bytecode files in Java-packaged form.
+   htdocs/       OpenJava API in HTML format.
+   bin/          Shell scripts useful to use OpenJava system.
+   tutorial/     Tutorial files in HTML format containing some examples of
+                 meta-programming in the example subfolder.
+   docs/         Other notes.
+
+
+To set up, you must do either 1) or 2)
+1) Set CLASSPATH environment variable to include 'classes' directory.
+2) Use ojc (for solaris), ojc.sh (for unix), or ojc.exe (for windows
+with cygwin) command in bin directory.
+
+Additionally, make sure that your Java compiler is in your PATH as the
+name 'javac'.  Otherwise OpenJava compiler fails to generate bytecode.
+
+
+** How to run
+
+The detailed explanation is shown in the programmer's guide above.
+The execution way is similar to :
+
+    $ java openjava.ojc.Main sourcecode.oj
+
+or :
+
+    solaris% bin/ojc.ksh sourcecode.oj
+    linux$ bin/ojc.sh sourcecode.oj
+    windows> bin/ojc.bat sourcecode.oj
+
+For example, type in the top directory,
+
+    $ java -classpath .:classes openjava.ojc.Main \
+	examples/verbose/VerboseClass.oj
+    $ java -classpath .:classes openjava.ojc.Main \
+	examples/verbose/Hello.oj
+
+
+** Contact
+
+This is an alpha-test release of the OpenJava and is designed to run
+under the JDK 1.1 or 1.2 and Java compiler.  The detailed specifications
+of OpenJava might change in future.  If you have any comment or find
+bugs, please contact the author at :
+
+    mich@acm.org
+
+The OpenJava home page, where the latest information regarding
+OpenJava and other documents around OpenJava are available, is at :
+
+    http://openjava.sourceforge.net/
+
+
+Enjoy,
+
+Michiaki Tatsubori
+mich@acm.org
+
+
+Java(TM) is a trademark of Sun Microsystems, Inc.

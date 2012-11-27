@@ -1,0 +1,97 @@
+/*
+ * FreeArgsClass.oj
+ *
+ * Apr 29, 1999, by Michiaki Tatsubori
+ * Feb 2, 1999, by Michiaki Tatsubori
+ */
+package examples.freeargs;
+
+
+import openjava.mop.*;
+import openjava.ptree.*;
+import openjava.syntax.*;
+
+
+/**
+ * The metaclass <code>OperatorOverridableClass</code> provides its
+ * base classes with an ability of overriding its operation like
+ * '+', '-', '*' and '/'.
+ *
+ * <p>
+ * For example, for the class:
+ * <pre>
+ * class MyCollection instantiates FreeArgsClass {
+ *     public generous add( Object[] arg ) { .. }
+ * }
+ * </pre>
+ * We can use the class above as follows:
+ * <pre>
+ * MyCollection collection = ..;
+ * collection.add( a, b, null, c, d );
+ * </pre>
+ * <p>
+ *
+ * @author   Michiaki Tatsubori
+ * @version  1.0
+ * @see java.lang.OJClass
+ */
+public class OperatorOverridableClass instantiates Metaclass extends OJClass
+{
+    private static final String GENEROUS = "generous";
+    /** Translates definition */
+
+    public void translateDefinition() throws MOPException {
+        OJMethod[] methods = getDeclaredMethods();
+	for (int i = 0; i < methods.length; ++i) {
+	    if (! methods[i].getModifiers().has( GENEROUS ))  continue;
+	    System.err.println( methods[i] );
+	    OJClass[] paramtypes = methods[i].getParameterTypes();
+	    if (paramtypes.length != 1 || ! paramtypes[0].isArray()) {
+	        System.err.println( "illegal parameter, ignored." );
+	        continue;
+	    }
+	    putMetaInfo( methods[i].getName(), paramtypes[0].getName() );
+	}
+    }
+
+    public OJMethod resolveException( NoSuchMemberException e,
+				      String name, OJClass[] params )
+        throws NoSuchMemberException
+    { 
+	try {
+	    String argtypename = getMetaInfo( name );
+	    if (argtypename != null) {
+	        OJClass paramtype = OJClass.forName( argtypename );
+	        return getMethod( name, new OJClass[]{ paramtype }, this );
+	    }
+	} catch ( OJClassNotFoundException e2 ) {
+	    System.err.println( e2 );
+	}
+	return super.resolveException( e, name, params );
+    }
+
+    /** Translates allocation parts */
+    public Expression expandMethodCall( Environment env, MethodCall expr ) {
+        String argtypename = getMetaInfo( expr.getName() );
+	if (argtypename == null)  return expr;
+	OJClass comptype;
+	try {
+	    comptype = OJClass.forName( argtypename ).getComponentType();
+	} catch ( OJClassNotFoundException e ) {
+	    System.err.println( e );
+	    return expr;
+	}
+	ExpressionList dim = new ExpressionList( null );
+	ArrayInitializer ainit = new ArrayInitializer( expr.getArguments() );
+        ArrayAllocationExpression carrier
+	  = new ArrayAllocationExpression( comptype, dim, ainit );
+	expr.setArguments( new ExpressionList( carrier ) );
+        return expr;
+    }
+
+    public static boolean isRegisteredModifier( String keyword ) {
+	if (keyword.equals( GENEROUS ))  return true;
+        return false;
+    }
+
+}

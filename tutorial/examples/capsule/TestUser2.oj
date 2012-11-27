@@ -1,0 +1,8 @@
+package examples.capsule;
+
+public class TestUser2
+{
+    public static void main( String[] argv ) {
+	Test.NAME.toString();
+    }
+}

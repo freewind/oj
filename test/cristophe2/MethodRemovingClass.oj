@@ -1,0 +1,20 @@
+package cristophe2;
+
+import openjava.mop.*;
+import openjava.ptree.*;
+
+public class MethodRemovingClass instantiates Metaclass extends OJClass {
+	public ClassDeclaration translateDefinition(
+		Environment env,
+		ClassDeclaration decl)
+		throws MOPException {
+		OJMethod[] m = getDeclaredMethods();
+
+		if (m.length >= 1) {
+			System.out.println("Removing " + m[0].signature());
+			removeMethod(m[0]);
+		}
+
+		return decl;
+	}
+}

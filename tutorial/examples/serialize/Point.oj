@@ -1,0 +1,29 @@
+package examples.serialize;
+
+import java.io.*;
+
+public class Point
+{
+	int x;
+	int y;
+}
+
+/*
+public class Point implements Marshalable
+{
+	int x;
+	int y;
+
+	public void readObject(ObjectIn is) throws IOException {
+		x = is.readInt();
+		y = is.readInt();
+	}
+
+	public void writeObject(ObjectOut os) throws IOException {
+		os.writeUTF("Point");
+		os.writeInt(x);
+		os.writeInt(y);
+
+	}
+}
+*/

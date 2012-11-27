@@ -1,0 +1,12 @@
+package examples.bca;
+
+
+import java.io.PrintStream;
+
+
+public class Test2 instantiates AutoAdaptationClass
+{
+    public void write(PrintStream out) {
+	out.println( "Hello" );
+    }
+}

@@ -1,0 +1,9 @@
+package examples.orcheck;
+
+
+public class Test instantiates OverrideCheckerClass
+{
+    public overriding String toString() {
+	return "Hello";
+    }
+}

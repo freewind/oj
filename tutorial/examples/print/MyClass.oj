@@ -1,0 +1,21 @@
+package examples.print;
+
+
+import openjava.mop.*;
+import openjava.ptree.*;
+
+
+public class MyClass instantiates TestPrinter extends OJClass
+{
+    public MyClass( Environment outer_env, OJClass declarer,
+		     ClassDeclaration ptree ) {
+	super( outer_env, declarer, ptree );
+    }
+
+    public MyClass( Class javaclass, MetaInfo minfo ) {
+	super( javaclass, minfo );
+    }
+
+    protected void pro() {}
+    public void pub() {}
+}

@@ -1,0 +1,80 @@
+package inner;
+
+import java.awt.*;
+import java.awt.event.*;
+import java.io.*;
+import javax.swing.*;
+import javax.swing.event.*;
+//import java.util.*;
+
+public class ImageMap extends JPanel {
+
+    Timer polyTimer;
+    Tool tool;
+
+    public ImageMap(Image image, String imagePath) {
+	tool = new Tool(this);
+	addMouseListener(tool);
+	addMouseMotionListener(tool);
+	polyTimer = new Timer(this);
+	polyTimer.start();
+	repaint();
+    }
+
+    public void paint(Graphics g) {
+    }
+
+    class Tool extends MouseAdapter implements MouseMotionListener {
+	ImageMap map;
+	
+	Color color = Color.blue;
+	
+	public Tool(ImageMap map) {
+	    this.map = map;
+	}
+
+	public void showPolyPopup() {
+	}
+	
+	public void mousePressed(MouseEvent e) {
+	}
+	
+	public void mouseDragged(MouseEvent e) {
+	}
+	
+	public void mouseMoved(MouseEvent e) {
+	    repaint();
+	}
+    }
+
+    class Timer extends Thread {
+	ImageMap map;
+	boolean active = false;
+	String command;
+	int x,y,node;
+	MouseEvent e;
+		
+	public Timer(ImageMap map) {
+	    this.map = map;
+	}
+	
+	public void run() {
+	    while (true) {
+		try {
+		    sleep(900);
+		    if (this.command=="poly") {
+			map.tool.showPolyPopup();
+		    }
+		}
+		catch (InterruptedException e) { }
+		suspend();
+	    }
+	}
+    }
+   
+}
+
+
+
+
+

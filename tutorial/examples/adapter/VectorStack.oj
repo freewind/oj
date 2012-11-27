@@ -1,0 +1,24 @@
+package examples.adapter;
+
+import java.util.Enumeration;
+import java.util.Vector;
+
+public class VectorStack instantiates AdapterClass
+      	adapts Vector in v to examples.adapter.Stack
+{
+    Vector v;
+    public VectorStack( Vector v ) {
+	this.v = v;
+    }
+    public void push( Object o ) {
+	v.addElement( o );
+    }
+    public Object pop() {
+	Object result = peek();
+	v.removeElementAt( v.size() - 1 );
+	return result;
+    }
+    public Object peek() {
+        return v.elementAt( v.size() - 1 );
+    }
+}

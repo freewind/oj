@@ -1,0 +1,12 @@
+import maurizio2;
+
+public class Test instantiates TestClass {
+	public void foo(short a1, int a2) {
+	}
+
+	public void foo(int[] a1, short[] a2) {
+	}
+
+	public void foo(short[] a1, int[] a2) {
+	}
+}

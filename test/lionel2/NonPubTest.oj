@@ -1,0 +1,36 @@
+package lionel2;
+
+public class NonPubTest instantiates Printer
+{
+    NonPubTest(String s) {}
+
+    public String toString() {
+	NonPubTest t = new NonPubTest("at NonPubTest");
+	A a = new A("at NonPubTest");
+	B b = new B("at NonPubTest");
+	return super.toString();
+    }
+}
+
+
+class A instantiates Printer
+{
+    A(String s) {}
+
+    public void foo() {
+	NonPubTest t = new NonPubTest("at A");
+	A a = new A("at A");
+	B b = new B("at A");
+    }
+}
+
+class B instantiates Printer
+{
+    B(String s) {}
+
+    public void bar() {
+	NonPubTest t = new NonPubTest("at B");
+	A a = new A("at B");
+	B b = new B("at B");
+    }
+}

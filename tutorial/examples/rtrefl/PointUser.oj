@@ -1,0 +1,19 @@
+/*
+ * PointUser.oj
+ */
+package examples.rtrefl;
+
+
+public class PointUser
+{
+
+    public static void main( String[] args ) {
+	Point p = new Point( 1, 2 );
+	p.mt = new VerboseRTMetaObject( p );
+	p.name = "MyFavorite";
+	int x = p.x + 1;
+	p.y = x * 2 + p.y;
+	System.out.println( "distance = " + p.distanceFromOrigin() );
+    }
+
+}

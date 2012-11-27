@@ -1,0 +1,17 @@
+/*
+ * Person.java
+ * 
+ * Created on 2003/11/02
+ * $Id$
+ */
+package dardia;
+
+/**
+ * The type Person.
+ * @author Michiaki Tatsubori
+ * @version 1.0 2003/11/02
+ */
+public class Person instantiates InterImpl {
+    public String getName() {
+    }
+}

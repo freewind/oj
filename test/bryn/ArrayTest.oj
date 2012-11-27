@@ -1,0 +1,13 @@
+package bryn;
+
+import java.util.*;
+
+public class ArrayTest instantiates ArraySupport {
+	public static void main(String[] args) {
+		int[] il = new int[32];
+		ArrayList list = new ArrayList();
+		list.add("Hello");
+		list.add("World");
+		System.out.println(list[0] + " " + list[1] + " " + il[0]);
+	}
+}

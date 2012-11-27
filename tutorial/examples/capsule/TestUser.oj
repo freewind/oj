@@ -1,0 +1,38 @@
+package examples.capsule;
+
+
+import java.awt.Panel;
+import java.util.*;
+import java.io.PrintStream;
+
+
+public class TestUser
+{
+    Test test;
+
+    public static void main( String[] argv ) {
+	TestUser user = new TestUser();
+	Test test = new Test();
+	System.out.println( test.str.toString() );
+	System.out.println( test.n.toString() );
+	test.foo();
+    }
+
+    private TestUser() {
+	this.test = new Test();
+    }
+
+    public void run() {
+	test.n = test;
+ 	java.lang.System.out.println( test.n = test );
+ 	System.out.println( (test.n = test).toString() );
+    }
+	
+    public void print() {
+	System.out.println( test.n.str );
+	String s = ((String) Test.NAME).toString();
+	String sa = Test.NAME + "_ALPHA";
+	String ss = (Test.NAME).toString();
+	return;
+    }
+}

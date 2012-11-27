@@ -1,0 +1,6 @@
+package pp;
+
+public class CTest instantiates C
+{
+    void f( int i, int j ) {}
+}

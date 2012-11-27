@@ -1,0 +1,33 @@
+/*
+ * Printer.java
+ *
+ */
+package examples.order2;
+
+
+import openjava.mop.*;
+
+
+public class Printer instantiates Metaclass extends OJClass
+{
+    public void translateDefinition() {
+        OJClass base = getSuperclass();
+	System.out.println("I'm " + getName() + ".");
+
+	System.out.println(getName() + " finished.");
+    }
+
+    public void translateDefinition0() {
+        OJClass base = getSuperclass();
+	System.out.println( "I'm " + getName() + "." + "  " +
+			    "After You, " + base.getName() + "." );
+
+	try {
+	    waitTranslation( base );
+	} catch ( Exception e ) {
+	    System.err.println( e.toString() );
+	}
+
+	System.out.println( getName() + " finished." );
+    }
+}

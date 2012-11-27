@@ -1,0 +1,129 @@
+package dardia;
+
+import openjava.mop.CannotAlterException;
+import openjava.mop.Environment;
+import openjava.mop.MOPException;
+import openjava.mop.Metaclass;
+import openjava.mop.MetaInfo;
+import openjava.mop.OJClass;
+import openjava.mop.OJConstructor;
+import openjava.mop.OJField;
+import openjava.mop.OJMethod;
+import openjava.mop.OJModifier;
+import openjava.mop.OJSystem;
+import openjava.ptree.ClassDeclaration;
+import openjava.ptree.ObjectList;
+import openjava.syntax.DefaultListRule;
+import openjava.syntax.SyntaxRule;
+import openjava.syntax.TokenID;
+import openjava.syntax.TypeNameRule;
+
+public class InterImpl instantiates Metaclass extends OJClass {
+
+    public void translateDefinition() throws openjava.mop.MOPException {
+        ObjectList extendedClasses =
+            (openjava.ptree.ObjectList) getSuffix("multiextends");
+        if (extendedClasses == null)
+            return;
+
+        EditableClass newClass =
+            new EditableClass(makeCopy(getName() + "Impl"));
+        for (int i = 0; i < extendedClasses.size(); ++i) {
+            OJClass extendedInterface =
+                OJClass.forName(extendedClasses.get(i).toString());
+            addImplementation(newClass, extendedInterface);
+        }
+
+        beInterface();
+        for (int i = 0; i < extendedClasses.size(); ++i) {
+            OJClass extendedInterface =
+                OJClass.forName(extendedClasses.get(i).toString());
+            addInterface(extendedInterface);
+        }
+
+        newClass.addInterface(this);
+        OJSystem.addNewClass(newClass);
+    }
+
+    public void addImplementation(
+        EditableClass newClass,
+        OJClass extendedInterface)
+        throws MOPException {
+        newClass.addInterface(extendedInterface);
+        OJClass extendedImpl =
+            OJClass.forName(extendedInterface.getName() + "Impl");
+        OJMethod[] methodImpls = extendedImpl.getDeclaredMethods();
+        for (int i = 0; i < methodImpls.length; ++i) {
+            newClass.addMethod(methodImpls[i]);
+        }
+    }
+
+    public void beInterface() throws MOPException {
+        getModifiers().add(OJModifier.INTERFACE);
+        OJMethod[] methods = getDeclaredMethods();
+        for (int i = 0; i < methods.length; ++i) {
+            methods[i].getModifiers().setAbstract();
+            methods[i].setBody(null);
+        }
+    }
+
+    public InterImpl(
+        Environment oj_param0,
+        OJClass oj_param1,
+        ClassDeclaration oj_param2) {
+        super(oj_param0, oj_param1, oj_param2);
+    }
+
+    public InterImpl(Class oj_param0, MetaInfo oj_param1) {
+        super(oj_param0, oj_param1);
+    }
+
+    // new class modifier: "multiextends".
+    public static boolean isRegisteredKeyword(String str) {
+        if (str.equals("multiextends")) {
+            return (true);
+        }
+        return OJClass.isRegisteredKeyword(str);
+    }
+
+    // overridden to let OpenJava know how multiextends arguments are
+    // separated.
+    public static SyntaxRule getDeclSuffixRule(String str) {
+        if (str.equals("multiextends")) {
+            return new DefaultListRule(new TypeNameRule(), TokenID.COMMA);
+        }
+        return OJClass.getDeclSuffixRule(str);
+    }
+}
+
+class EditableClass extends openjava.mop.OJClass {
+    public EditableClass(OJClass original) throws CannotAlterException {
+        super(
+            original.getEnvironment(),
+            original.getDeclaringClass(),
+            original.getSourceCode());
+    }
+
+    public OJClass addClass(openjava.mop.OJClass clazz)
+        throws CannotAlterException {
+        return super.addClass(clazz);
+    }
+
+    public OJConstructor addConstructor(OJConstructor constr)
+        throws CannotAlterException {
+        return super.addConstructor(constr);
+    }
+
+    public OJField addField(OJField field) throws CannotAlterException {
+        return super.addField(field);
+    }
+
+    public void addInterface(OJClass clazz) throws CannotAlterException {
+        super.addInterface(clazz);
+    }
+
+    public OJMethod addMethod(OJMethod method) throws CannotAlterException {
+        return super.addMethod(method);
+    }
+
+}

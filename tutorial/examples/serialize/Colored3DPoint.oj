@@ -1,0 +1,19 @@
+package examples.serialize;
+
+public class Colored3DPoint
+{
+    public Color color = new Color((byte) 0, (byte) 0, (byte) 0);
+    public int x;
+    public int y;
+    public int z;
+}
+
+/*
+public class Colored3DPoint
+{
+    public Color color = new Color((byte) 0, (byte) 0, (byte) 0);
+    private int x;
+    private int y;
+    private int z;
+}
+*/

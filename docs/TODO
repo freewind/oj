@@ -1,0 +1,41 @@
+* innerclasses
+* setInterface() ...
+* (String.class) -> (OJClass.forClass(String.class))  by Metaclass
+* setting up ClassEnvironment correctly
+* inheritance of fields in interface
+
+OJClass API
+	- Class loader API
+	- More customizablity in loading source code
+
+OJClass Bug
+	- Array objects must have interface like Serializable, Cloneable.
+	- Fails only for array whose elements' type is any source-based class.
+
+OJClass API
+	- getAllInterfaces() or getInterfaces() + getDeclaredInterfaces()
+	- The getInterfaces() returns all the interfaces now.
+
+OJField's lack of API
+	- constructor of OJField with field initializer
+
+ClassDeclaration Utility
+	- New class objects created by makeRecursiveCopy() needs
+	  class-importing information
+
+OJC Utility
+	- Command line indication of metaclass
+
+OJClass Bug
+	- No metalevel information kept for newly generated classes.
+
+ModifierList API
+	- ModifierList.contains(String) may have better be sensitive
+	to regular Java modifiers like "public".
+
+OJClass's lack of API
+	- setModifiers()
+
+* OJClass Bug?
+	- interface should have a superclass java.lang.Object
+	* Interface is not a subclass of java.lang.Object.

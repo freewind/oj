@@ -1,0 +1,47 @@
+package examples.capsule;
+
+
+import java.awt.Panel;
+import java.util.*;
+import java.io.PrintStream;
+
+
+public class Test instantiates CapsuleClass
+{
+    private int iii = 0;
+
+    protected Test n = null;
+
+    public String str = "string";
+
+    public static String NAME = "Test";
+
+    public Test() {
+	super();
+    }
+
+    public static void main( String[] argv ) {
+	PrintStream out = System.out;
+	PrintStream error = java.lang.System.err;
+	out.println( "Hello" + " " + "World" );
+	Test n = new Test();
+	java.lang.System.err.println( "done. " );
+	Test test = new Test();
+	test.foo();
+    }
+
+    public Test( String str ) {
+	this.str = str;
+	n = null;
+    }
+
+    public int foo() {
+	return iii;
+    }
+
+    public String toString() {
+	if (n == null)  return str;
+	return str + n;
+    }
+
+}

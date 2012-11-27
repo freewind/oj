@@ -1,0 +1,11 @@
+package lionel;
+
+public class Hello3 {
+	public static void main(String[] argv) {
+		hello();
+	}
+
+	static void hello() {
+		System.out.println("Hello, world.");
+	}
+}

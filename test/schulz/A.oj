@@ -1,0 +1,9 @@
+import schulz;
+
+public class A instantiates Sample {
+
+	public A() {
+		super();
+	}
+
+}

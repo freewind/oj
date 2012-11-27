@@ -1,0 +1,23 @@
+import maurizio2;
+
+import openjava.mop.*;
+import openjava.ptree.*;
+import openjava.syntax.*;
+import openjava.ptree.util.VariableBinder;
+
+public class TestClass instantiates Metaclass extends OJClass {
+	public Expression expandMethodCall(Environment env, MethodCall expr) {
+		System.out.println("Argument Types of : " + expr.toString());
+		ExpressionList args = expr.getArguments();
+		OJClass[] argtypes = new OJClass[args.size()];
+		try {
+			for (int i = 0; i < argtypes.length; ++i) {
+				argtypes[i] = args.get(i).getType(env);
+				System.out.println("\t" + argtypes[i]);
+			}
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		return super.expandMethodCall(env, expr);
+	}
+}

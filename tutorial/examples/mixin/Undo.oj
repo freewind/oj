@@ -1,0 +1,19 @@
+package examples.mixin;
+
+
+public class Undo
+{
+    inherited String getText();
+    inherited void setText(String s);
+    
+    String lastText;
+
+    public void setText(String s) {
+	lastText = getText();
+	super.setText(s);
+    }
+    
+    public void undo() {
+	super.setText(lastText);
+    }
+}

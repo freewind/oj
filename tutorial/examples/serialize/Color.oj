@@ -1,0 +1,44 @@
+package examples.serialize;
+
+import java.io.*;
+
+public class Color
+{
+    public Color(byte r, byte g, byte b) {
+	this.r = r;  this.g = g;  this.b = b;
+    }
+    byte r;
+    byte g;
+    byte b;
+}
+
+/*
+public class Color implements Marshalable 
+{
+    byte r;
+    byte g;
+    byte b;
+    
+    public Color(byte r, byte g, byte b) {
+	this.r = r;  this.g = g;  this.b = b;
+    }
+
+    public Color() {
+    }
+    
+    public void readObject(ObjectIn is) throws IOException {
+	r = is.readByte();
+	g = is.readByte();
+	b = is.readByte();
+    }
+    
+    public void writeObject(ObjectOut os) throws IOException {
+	os.writeUTF("Color");
+	os.writeByte(r);
+	os.writeByte(g);
+	os.writeByte(b);
+    }
+    
+}
+*/
+

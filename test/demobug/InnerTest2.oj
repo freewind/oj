@@ -1,0 +1,16 @@
+/*
+ * InterTest.java
+ *
+ * May 4, 1999 by Michiaki Tatsubori
+ */
+package demobug;
+
+public class InnerTest2 {
+	public static void main(String[] argv) {
+		Runnable r = new Runnable() {
+			public void run() {
+			}
+		};
+		String s = new String("");
+	}
+}

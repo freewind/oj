@@ -1,0 +1,22 @@
+/*
+ * Point.oj
+ */
+package examples.capsule;
+
+
+public class Point instantiates CapsuleClass
+{
+    public int x, y;
+    protected String name;
+
+    public Point( String name, int x, int y ) {
+	this.x = x;
+	this.y = y;
+	this.name = name;
+    }
+
+    public Point( int x, int y ) {
+	this( "DefaultName", x, y );
+    }
+
+}

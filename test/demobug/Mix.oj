@@ -1,0 +1,47 @@
+package demobug;
+
+import java.awt.*;
+import examples.capsule.Point;
+import examples.capsule.Test;
+import examples.multimethod.MultimethodClass;
+
+public class Mix instantiates MultimethodClass extends Point {
+
+	Point test;
+
+	private Mix() {
+		super("Mix's", 0, 0);
+		this.test = new Point("Mix's", 0, 0);
+	}
+
+	public String toString() {
+		System.out.println(test.name.toString());
+		System.out.println("(" + test.x + "," + test.y + ")");
+		return super.toString();
+	}
+
+	public multiform String bar(Panel a, Button b) {
+		return "panel";
+	}
+
+	public multiform String bar(Button a, Button b) {
+		return "button";
+	}
+
+	public multiform String bar(Canvas a, Panel b) {
+		return "canvas";
+	}
+
+	public static void main(String[] argv) {
+		Point p = new Mix();
+	}
+
+	public multiform void bar(Panel a, Window b) {
+		System.out.println("panel");
+		String s = ((String) Test.NAME).toString();
+		String sa = Test.NAME + "_ALPHA";
+		String ss = (Test.NAME).toString();
+		return;
+	}
+
+}

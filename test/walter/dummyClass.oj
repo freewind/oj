@@ -1,0 +1,18 @@
+package walter;
+
+public class dummyClass instantiates multiTrig {
+
+	public dummyClass() {
+	}
+
+	public multi_trig void dummyMethod(int i) {
+		System.out.println("dummyMethod was called " + i + " times!");
+	}
+
+	public static void main(String[] argv) {
+		int i = 0;
+		dummyClass dC = new dummyClass();
+		for (; i <= 100; i++)
+			dC.dummyMethod(i);
+	}
+}

@@ -1,0 +1,12 @@
+package examples.order;
+
+public class Test instantiates OrderKeeperClass
+   dependsOn java.util.Vector
+{
+}
+
+
+class B instantiates OrderKeeperClass dependsOn A {}
+//class C instantiates OrderKeeperClass dependsOn B {}
+class A instantiates OrderKeeperClass dependsOn Test {}
+//class D instantiates OrderKeeperClass dependsOn C {}

@@ -1,0 +1,5 @@
+examples.serialize.SerializableClass examples.serialize.Point
+examples.serialize.SerializableClass examples.serialize.Color
+examples.serialize.SerializableClass examples.serialize.ColoredPoint
+examples.serialize.SerializableClass examples.serialize.Colored3DPoint
+examples.serialize.SerializableClass examples.serialize.*

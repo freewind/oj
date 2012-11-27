@@ -1,0 +1,35 @@
+/*
+ * Point.oj
+ */
+package examples.rtrefl;
+
+
+public class Point instantiates RTReflClass
+{
+    public int x, y;
+    public String name;
+
+    public Point( String name, int x, int y ) {
+	this.x = x;
+	this.y = y;
+	this.name = name;
+    }
+
+    public Point( int x, int y ) {
+	this( "DefaultName", x, y );
+    }
+
+    public String toString() {
+	return "(" + x + "," + y + ")";
+    }
+
+    public void move( int dx, int dy ) {
+	x += dx;
+	y += dy;
+    }
+
+    public double distanceFromOrigin() {
+	return Math.sqrt( (double) x * x + y * y );
+    }
+	
+}

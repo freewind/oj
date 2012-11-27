@@ -1,0 +1,19 @@
+import mazza;
+
+import openjava.mop.*;
+import openjava.ptree.*;
+
+public class TestClass instantiates Metaclass extends OJClass {
+	public void translateDefinition() throws MOPException {
+		OJClass dummy = OJClass.forClass(String.class);
+		OJSystem.env.record("NonExisting", dummy);
+
+		FieldDeclaration fd =
+			new FieldDeclaration(
+				new ModifierList(ModifierList.PUBLIC),
+				new TypeName("NonExisting"),
+				new VariableDeclarator("sender", null));
+		OJField field = new OJField(getEnvironment(), this, fd);
+		addField(field);
+	}
+}

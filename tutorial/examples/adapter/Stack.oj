@@ -1,0 +1,15 @@
+package examples.adapter;
+
+import java.util.Enumeration;
+
+public interface Stack
+{
+    public int size();
+    public boolean isEmpty();
+    public Enumeration elements();
+    public Object[] toArray();
+    public int hashCode();
+    public void push( Object o );
+    public Object pop();
+    public Object peek();
+}

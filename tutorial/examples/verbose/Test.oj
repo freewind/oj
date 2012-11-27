@@ -1,0 +1,73 @@
+package examples.verbose;
+
+
+import java.awt.Panel;
+import java.util.*;
+import java.io.PrintStream;
+
+
+public class Test instantiates VerboseClass
+     extends Panel
+{
+    private int iii = 0;
+
+    private Test n = null;
+
+    private String str = "string";
+
+    public Test() {
+	super();
+    }
+
+    /**
+     * @param  
+     * @return  
+     * @exception  
+     * @see java.lang.Object
+     */
+    public static void main( String[] argv ) {
+	PrintStream out = System.out;
+	PrintStream error = java.lang.System.err;
+	out.println( "Hello" + " " + "World" );
+	Test n = new Test();
+	java.lang.System.err.println( "done. " );
+	Test test = new Test();
+	test.hoge();
+	test.foo();
+    }
+
+    public void hoge() {
+	Local l = new Local();
+	System.out.println( l.foo );
+	System.out.println( l.bar.str );
+    }
+
+    public Test( String str ) {
+	this.str = str;
+	n = null;
+    }
+
+    public int foo() {
+	return iii;
+    }
+
+    public String toString() {
+	if (n == null)  return str;
+	return str + n;
+    }
+
+}
+
+class Local instantiates VerboseClass
+{
+    String foo = null;
+    Local2 bar = new Local2();
+    public final String getFoo( Integer i ) {
+	return foo;
+    }
+}
+
+class Local2
+{
+    String str = "" + "TEST";
+}

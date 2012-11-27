@@ -1,0 +1,10 @@
+package examples.orcheck;
+
+
+public class TestWithError instantiates OverrideCheckerClass
+{
+    /** typemiss! */
+    public overriding String tostring() {
+	return "Hello";
+    }
+}

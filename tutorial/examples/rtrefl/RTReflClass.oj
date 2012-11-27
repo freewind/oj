@@ -1,0 +1,247 @@
+/*
+ * RTReflClass.oj
+ *
+ * Oct 29, 1999 by Michiaki Tatsubori
+ */
+package examples.rtrefl;
+
+
+import openjava.mop.*;
+import openjava.ptree.*;
+import openjava.syntax.*;
+
+
+/**
+ * The class <code>RTReflClass</code> is a metaclass which
+ * provides hooks for runtime class metaobject.
+ * <p>
+ * All the fields in the class are hidden instead the readers and
+ * writers methods for fields are provided.  Furthermore, accesses
+ * to fields of the class is to be replaced with these methods.
+ * Note that member accesses in its class body are not captured.
+ */
+public class RTReflClass instantiates Metaclass extends OJClass
+{
+    protected static String RTMETAOBJ_FIELD = "mt";
+    protected static Expression METAFIELD_ACCESS
+	= new FieldAccess( RTMETAOBJ_FIELD );
+
+    protected static final String originalMethodName( String name ) {
+        return "org_" + name;
+    }
+
+    protected static final String fieldReaderName( String name ) {
+        return "read_" + name;
+    }
+
+    protected static final String fieldWriterName( String name ) {
+        return "write_" + name;
+    }
+
+    /** Overrides to translate definition */
+    public convenient void translateDefinition() throws MOPException {
+	addInterface( RTMetaLevel.class );
+
+	/* Gets all the declared fields and methods */
+	OJMethod[] methods = getDeclaredMethods();
+	OJField[] fields = getDeclaredFields();
+
+	OJField rtmobj_field
+	    = new OJField( this, OJModifier.forModifier( OJModifier.PUBLIC ),
+			   RTMetaObject.class, RTMETAOBJ_FIELD );
+	addField( rtmobj_field );
+
+	/* Generates trapping methods for each public method */
+	for (int i = 0; i < methods.length; ++i) {
+	    OJModifier modif = methods[i].getModifiers();
+	    if (modif.isPublic())  provideMethod( methods[i] );
+	}
+
+	/* Generates wrappers for each public field */
+	for (int i = 0; i < fields.length; ++i) {
+	    OJModifier modif = fields[i].getModifiers();
+	    if (modif.isPublic())  provideField( fields[i] );
+	}
+    }
+
+    private void provideMethod( OJMethod method ) throws MOPException {
+        System.err.println( "Providing a method : " + method.toString() );
+	OJMethod trapper = OJMethod.makePrototype( method );
+	method.setName( originalMethodName( method.getName() ) );
+	addMethod( trapper );
+
+	/* marshalling and trapping */
+	Expression trapexpr = generateTrappingMethodCall( trapper );
+
+	StatementList body = new StatementList();
+	OJClass retType = trapper.getReturnType();
+	if (retType == OJSystem.VOID) {
+	    body.add( new ExpressionStatement( trapexpr ) );
+	} else {
+	    Expression unwrapexpr = generateUnwrapping( retType, trapexpr );
+	    body.add( new ReturnStatement( unwrapexpr ) );
+	}
+	trapper.setBody( body );
+    }
+
+    private static convenient MethodCall
+    generateTrappingMethodCall( OJMethod method ) throws MOPException {
+	ExpressionList params = method.getParameterVariables();
+	OJClass[] paramTypes = method.getParameterTypes();
+
+	/* wrapping arguments */
+	ExpressionList typeinfo_args = new ExpressionList();
+	ExpressionList args = new ExpressionList();
+	for (int i = 0; i < paramTypes.length; ++i) {
+	    typeinfo_args.add( new ClassLiteral( paramTypes[i] ) );
+	    args.add( generateWrapping( paramTypes[i], params.get( i ) ));
+	}
+
+	/* marshalling arguments */
+	Expression namearg
+	    = Literal.makeLiteral( originalMethodName( method.getName() ) );
+	Expression mrsld_typearg = new ArrayAllocationExpression(
+	    java.lang.Class.class, new ExpressionList( null ),
+	    new ArrayInitializer( typeinfo_args )
+	);
+	Expression mrsld_arg = new ArrayAllocationExpression(
+	    java.lang.Object.class, new ExpressionList( null ),
+	    new ArrayInitializer( args )
+	);
+
+	ExpressionList metaargs
+	    = new ExpressionList( namearg, mrsld_typearg, mrsld_arg );
+	return new MethodCall( METAFIELD_ACCESS, "trapMethodCall", metaargs );
+    }
+
+    private void provideField( OJField field ) throws MOPException {
+        System.err.println( "Providing a field : " + field.toString() );
+	generateReaderMethod( field );
+	generateWriterMethod( field );
+    }
+
+    /**
+     * int read_l() {
+     *     return ((Integer) mt.trapFieldRead("l")).intValue();
+     * }
+     */
+    private void generateReaderMethod( OJField field ) throws MOPException {
+	//Expression trapexpr = makeExpression(
+	//    "mt.trapFieldRead(\"" + field.getName() + "\")"
+	//);
+	Expression metafld = new FieldAccess( RTMETAOBJ_FIELD );
+	ExpressionList args = new ExpressionList(
+	    Literal.makeLiteral( field.getName() )
+	);
+	Expression trapexpr
+	    = new MethodCall( METAFIELD_ACCESS, "trapFieldRead", args );
+	Expression unwrapping
+	    = generateUnwrapping( field.getType(), trapexpr );
+	OJMethod reader = new OJMethod( this,
+	    field.getModifiers(), field.getType(),
+	    fieldReaderName( field.getName() ),
+	    (OJClass[]) null, null,
+	    new StatementList( new ReturnStatement( unwrapping ) )
+	    );
+	addMethod( reader );
+    }
+
+    /**
+     * int write_l(int rvalue) {
+     *     mt.trapFieldWrite("l", new Integer(rvalue));
+     *     return rvalue;
+     * }
+     */
+    private void generateWriterMethod( OJField field ) throws MOPException {
+	OJMethod writer = new OJMethod( this,
+	    field.getModifiers(), field.getType(),
+	    fieldWriterName( field.getName() ),
+	    new OJClass[]{ field.getType() }, null, null
+	    );
+	Expression param = writer.getParameterVariables().get( 0 );
+        //StatementList body = makeStatementList( writer.getEnvironment(),
+        //    "mt.trapFieldWrite(\"" + field.getName() + "\");" +
+	//    "return " + field.getName() + "=" + param + ";"
+	//    );
+	ExpressionList args = new ExpressionList(
+	    Literal.makeLiteral( field.getName() ),
+	    generateWrapping( field.getType(), param )
+        );
+	Expression trapexpr
+	    = new MethodCall( METAFIELD_ACCESS, "trapFieldWrite", args );
+	StatementList body = new StatementList(
+            new ExpressionStatement( trapexpr ),
+	    new ReturnStatement( param )
+        );
+	writer.setBody( body );
+	addMethod( writer );
+    }
+
+    /** new Integer(expr) for expr */
+    private static Expression
+    generateWrapping(OJClass realType, Expression expr) {
+	if (! realType.isPrimitive())  return expr;
+	OJClass wrapperType = realType.primitiveWrapper();
+	return new AllocationExpression( wrapperType,
+					 new ExpressionList( expr ) );
+    }
+
+    /** ((Integer) expr).intValue() for expr */
+    private static Expression
+    generateUnwrapping(OJClass realType, Expression expr) {
+	expr = new CastExpression( realType.primitiveWrapper(), expr );
+	if (! realType.isPrimitive())  return expr;
+	return new MethodCall( expr, realType.getName() + "Value", null );
+    }
+
+    /* overrides */
+
+    /** Allows references to private fields */
+    public OJField resolveException(NoSuchMemberException e, String name)
+        throws NoSuchMemberException
+    {
+        try {
+	    return getDeclaredField( name );
+        } catch ( NoSuchMemberException e2 ) {}
+        return super.resolveException( e, name );
+    }
+
+    /** Overrides to expand fields to be read */
+    public Expression expandFieldRead(
+        Environment  env,
+        FieldAccess  expr )
+    {
+	if (expr.getName().equals( RTMETAOBJ_FIELD ))  return expr;
+        Expression ref = expr.getReferenceExpr();
+	String name = fieldReaderName( expr.getName() );
+        Expression result;
+	if (ref != null) {
+	    result = new MethodCall( ref, name, null );
+	} else {
+	    result = new MethodCall( expr.getReferenceType(), name, null );
+	}
+        System.err.println( "Patch FR : " + expr + "\tto\t" + result );
+	return result;
+    }
+
+    /** Overrides to expand fields to be written */
+    public Expression expandFieldWrite(
+        Environment           env,
+        AssignmentExpression  expr )
+    {
+	FieldAccess fldac = (FieldAccess) expr.getLeft();
+	if (fldac.getName().equals( RTMETAOBJ_FIELD ))  return expr;
+	ExpressionList args = new ExpressionList( expr.getRight() );
+        Expression ref = fldac.getReferenceExpr();
+	String name = fieldWriterName( fldac.getName() );
+        Expression result;
+	if (ref != null) {
+	    result = new MethodCall( ref, name, args );
+	} else {
+	    result = new MethodCall( fldac.getReferenceType(), name, args );
+	}
+        System.err.println( "Patch FW : " + expr + "\tto\t" + result );
+	return result;
+    }
+
+}

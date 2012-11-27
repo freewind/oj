@@ -1,0 +1,36 @@
+package antonio;
+
+import java.util.*;
+
+public class Test
+{
+    public int bbb() {
+        return 1;
+    }
+
+    class InnerVector extends Vector {
+	public int ff = 3;
+        public int aaa() {
+            return bbb();
+        }
+
+        public int ccc() {
+            return 0;
+        }
+    }
+    
+    public void ddd() {
+        InnerVector v = new InnerVector() {
+                public int ccc() { 
+		    int j = ff;
+                    return aaa();
+                }
+            };
+        System.err.println("Result:" + v.ccc());
+    }
+    
+
+    public static void main(String[] args) {
+        (new Test()).ddd();
+    }
+}

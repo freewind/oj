@@ -1,0 +1,16 @@
+/********************************************************
+| Art Dardia <dardia@rpi.edu> [10-27-2003]
+|
+| CSCI-4430 Programming Languages
+| Carlos Varela
+| Mon.,Thurs. @ 12-1:50pm
+|
+| filename: TA.oj
+| descrip.:
+********************************************************/
+
+// no imports
+
+public class TA instantiates MIJava multiextends Student, Staff {
+
+}

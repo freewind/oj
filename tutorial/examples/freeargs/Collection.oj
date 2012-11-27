@@ -1,0 +1,52 @@
+/*
+ * Collection.oj
+ *
+ * Apr 13, 1999  Michiaki Tatsubori
+ */
+package examples.freeargs;
+
+
+import examples.freeargs.FreeArgsClass;
+import examples.print.*;
+
+
+/**
+ * The class <code>Collection</code> represents a collection of objects.
+ */
+public class Collection instantiates FreeArgsClass
+{
+
+    private Object[] contents;
+
+    public Collection() {
+        contents = new Object[0];
+    }
+
+    public boolean isEmpty() {
+        return (contents.length == 0);
+    }
+
+    /** Accepts any number of arguments. */
+    public generous void set( Object[] args ) {
+        contents = new Object[args.length];
+	System.arraycopy( args, 0, contents, 0, args.length );
+    }
+
+    /** Accepts any number of arguments. */
+    public generous void add( Object[] args ) {
+        Object[] old = contents;
+        contents = new Object[old.length + args.length];
+	System.arraycopy( old, 0, contents, 0, old.length );
+	System.arraycopy( args, 0, contents, old.length, args.length );
+    }
+
+    public int size() {
+        return contents.length;
+    }
+
+    /** Obtains a specified object. */
+    public Object get( int i ) {
+	return contents[i];
+    }
+
+}

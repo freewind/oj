@@ -1,0 +1,111 @@
+package smyth;
+
+import openjava.mop.*;
+import openjava.ptree.*;
+import openjava.syntax.*;
+
+import java.util.*;
+
+public class MDistributed instantiates Metaclass extends OJClass {
+	/**
+	 *	Class Declarations
+	 */
+	public static final String DISTRIBUTED = "distributed";
+	public static final String SUFFIX = "Inner";
+
+	private OJClass inner = null;
+
+	/**
+	 *	Overide the isRegistered method for DISTRIUBTED
+	 */
+	public static boolean isRegisteredModifier(String keyword) {
+		if (keyword.equals(DISTRIBUTED))
+			return true;
+		return false;
+	}
+
+	/**
+	 *	Main method - translateDefinition
+	 */
+	public void translateDefinition() throws MOPException {
+		if (getModifiers().has(DISTRIBUTED)) {
+			System.out.println("makeInnerClass()");
+			makeInnerClass();
+			System.out.println("changeOutterFields()");
+			changeOutterFields();
+			System.out.println("changeOutterConstructors()");
+			changeOutterConstructors();
+		} else {
+			System.out.println(
+				"You must attach the class modifier 'distributed' = for translation to take place.");
+		}
+	}
+
+	/**
+	 *	This method makes an innerclass from the outter class.
+	 *
+	 *	The outter class then acts as a wrapper for this inner class.
+	 *
+	 */
+	public void makeInnerClass() throws openjava.mop.CannotAlterException {
+		/* Declarations */
+		ClassDeclaration clsdecl;
+		MemberDeclarationList memlist;
+
+		/* Make the ClassDeclaration from the OJClass */
+		clsdecl = (ClassDeclaration) getSourceCode().makeRecursiveCopy();
+
+		/* Change the name of ClassDeclaration */
+		clsdecl.setName(clsdecl.getName() + SUFFIX);
+
+		/* Change the name of the Constructors to match new name */
+		memlist = clsdecl.getBody();
+
+		for (int i = 0; i < memlist.size(); i++) {
+			if (memlist.get(i) instanceof ConstructorDeclaration) {
+				((ConstructorDeclaration) memlist.get(i)).setName(
+					clsdecl.getName());
+			}
+		}
+
+		/* Add the inner class */
+		/*original (getSourceCode().getBody()).add(clsdecl);*/
+		inner = new OJClass(getEnvironment(), this, clsdecl);
+		OJSystem.env.record(inner.getName(), inner);
+		inner = addClass(inner);
+	}
+
+	/**
+	 *	This method is to remove the fields from the outter (wrapper) class.
+	 *
+	 *	It is also to add a field of the type of the (new) innner class.
+	 */
+	public void changeOutterFields() throws MOPException {
+		/* Remove the fields from the outter (wrapper) class */
+		OJField[] ojfld = getDeclaredFields();
+		for (int i = 0; i < ojfld.length; ++i) {
+			removeField(ojfld[i]);
+		}
+
+		/* Add the new field of type of the new inner class */
+		/* At the moment this is just given the variable name 'inner' */
+		OJModifier modif = OJModifier.forModifier(OJModifier.PRIVATE);
+		addField(new OJField(this, modif, inner, "inner"));
+	}
+
+	/* Change the constructors */
+	public void changeOutterConstructors() throws MOPException {
+		OJConstructor[] ojconstr = getConstructors();
+		for (int i = 0; i < ojconstr.length; ++i) {
+			StatementList body =
+				makeStatementList(
+					"inner=new "
+						+ inner.getName()
+						+ "("
+						+ ojconstr[i].getParameterVariables()
+						+ ");");
+			ojconstr[i].setBody(body);
+		}
+	}
+
+}

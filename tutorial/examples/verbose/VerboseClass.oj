@@ -1,0 +1,30 @@
+/*
+ * VerboseClass.java
+ *
+ * @author   Michiaki Tatsubori
+ * @version  %VERSION% %DATE%
+ * @see      java.lang.Object
+ *
+ * COPYRIGHT 1999 by Michiaki Tatsubori, ALL RIGHTS RESERVED.
+ */
+package examples.verbose;
+
+
+import openjava.mop.*;
+import openjava.ptree.*;
+import openjava.syntax.*;
+
+
+public class VerboseClass instantiates Metaclass extends OJClass
+{
+    /* overrides for translation */
+    public void translateDefinition() throws MOPException {
+        OJMethod[] methods = getDeclaredMethods();
+        for (int i = 0; i < methods.length; ++i) {
+	    Statement printer = makeStatement(
+		"java.lang.System.out.println( \"" +
+		methods[i].toString() + " was called\" );" );
+	    methods[i].getBody().insertElementAt( printer, 0 );
+        }
+    }
+}

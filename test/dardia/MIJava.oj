@@ -1,0 +1,109 @@
+import openjava.mop.*;
+import openjava.ptree.*;
+import openjava.syntax.*;
+
+import java.util.*;
+
+public class MIJava instantiates Metaclass extends OJClass {
+
+    // The below logic performs conflict resolution by not overwriting any methods already existing.
+    //   This means that if in the TA multiextends Staff, Student example both Staff and Student have a field or
+    //   a method with the same name, the field/method that is copied into TA's body is the one from the base
+    //   class that occurs earlier in the argument list to multiextends.
+    public void translateDefinition() throws MOPException {
+        transformMultiextendingClass();
+    }
+
+    public void transformMultiextendingClass() throws MOPException {
+        ObjectList extendedClasses = (ObjectList)getSuffix("multiextends");
+
+        Collection existingSignatures = new Vector();
+        OJMethod[] currentMethods = getDeclaredMethods();
+        for (int i = 0; i < currentMethods.length; i++) {
+            existingSignatures.add((currentMethods[i].signature()).toString());
+        }
+
+        Collection existingFields = new Vector();
+        OJField[] currentFields = getDeclaredFields();
+        for (int i = 0; i < currentFields.length; i++) {
+            existingFields.add((currentFields[i].signature()).toString());
+        }
+
+        if (extendedClasses != null) {
+            for (int i = 0; i < extendedClasses.size(); i++) {
+                try {
+                    OJClass currentExtendedClass = OJClass.forName((extendedClasses.get(i)).toString());
+
+                    // open each class that we multiextended and copy its methods into a local variable
+                    OJMethod[] currentExtendedClassMethods = currentExtendedClass.getDeclaredMethods();
+
+                    // copy all of the methods for the current extended class into the output if they don't already exist
+                    for (int j = 0; j < currentExtendedClassMethods.length; j++) {
+                        if (!existingSignatures.contains((currentExtendedClassMethods[j].signature()).toString())) {
+                            // if we don't currently have this method, add it
+                            //addMethod(currentExtendedClassMethods[j]);
+
+                            // Because the above addMethod() causes odd CannotAlterExceptions to be thrown, I do
+                            // the below to describe what is happening in the multiextending class and where its
+                            // methods come from.
+
+                            StatementList statementsToInsert = new StatementList();
+                            Statement cameFromStatement = makeStatement("System.out.println(\"this body would come from " + (extendedClasses.get(i)).toString() + "\\n\");");
+                            statementsToInsert.add(cameFromStatement);
+
+
+                            OJMethod methodToInsert = new OJMethod((OJClass)this,
+                                                                   currentExtendedClassMethods[j].getModifiers(),
+                                                                   currentExtendedClassMethods[j].getReturnType(),
+                                                                   currentExtendedClassMethods[j].getName(),
+                                                                   currentExtendedClassMethods[j].getParameterTypes(),
+                                                                   currentExtendedClassMethods[j].getExceptionTypes(),
+                                                                   statementsToInsert);
+
+                            addMethod(methodToInsert);
+
+                            // make note that we added a mehtod with some signature so we don't put multiple methods
+                            // with the same signature into the class.  this would be invalid Java code and unlogical.
+                            existingSignatures.add((methodToInsert.signature()).toString());
+                        } // else, a method with the same signature already exists, skip it
+                    }
+
+
+                    // open each class and copy its fields into local variable
+                    OJField[] currentExtendedClassFields = currentExtendedClass.getDeclaredFields();
+
+                    // copy all of the fields for the current extended class into the output if they don't already exist
+                    for (int j = 0; j < currentExtendedClassFields.length; j++) {
+                        if (!existingFields.contains((currentExtendedClassFields[j].signature()).toString())) {
+                            // if we don't currently have this field, add it
+                            addField(currentExtendedClassFields[j]);
+                            existingFields.add((currentExtendedClassFields[j].signature()).toString());
+                        }
+                    }
+
+                } catch (OJClassNotFoundException e) {
+                    System.err.println(e);
+                    System.exit(-1);
+                }
+            }
+        }
+    }
+
+    // new class modifier: "multiextends".
+    public static boolean isRegisteredKeyword(String str) {
+        if (str.equals("multiextends")) {
+            return(true);
+        }
+
+        return OJClass.isRegisteredKeyword(str);
+    }
+
+    // overridden to let OpenJava know how multiextends arguments are separated.
+    public static SyntaxRule getDeclSuffixRule(String str) {
+        if (str.equals("multiextends")) {
+            return new DefaultListRule(new TypeNameRule(), TokenID.COMMA );
+        }
+
+        return null;
+    }
+}

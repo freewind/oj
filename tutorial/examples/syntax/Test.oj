@@ -1,0 +1,96 @@
+/*
+ * Simple.java
+ *
+ * comments here.
+ *
+ * @author   Michiaki Tatsubori
+ * @version  %VERSION% %DATE%
+ * @see      java.lang.Object
+ *
+ * COPYRIGHT 1998 by Michiaki Tatsubori, ALL RIGHTS RESERVED.
+ */
+package examples.syntax;
+
+
+import java.awt.Panel;
+import java.util.*;
+import java.io.PrintStream;
+
+
+public class Test instantiates RichSyntaxClass
+    extends Panel
+    loves CreamPuff[]
+    hates Pimento/*, Apple*/
+    adapts Vector in v to Stack
+{
+    private int iii = 0;
+    private Vector v;
+
+    private Test n = null;
+
+    private String str = "string";
+    private final static String DEF = "<default>";
+
+    public Test() {
+	super();
+    }
+
+    /**
+     * @param  
+     * @return  
+     * @exception  
+     * @see java.lang.Object
+     */
+    public static remote void main( String[] args ) loves Apple
+    {
+    }
+
+    public String toString() forwards Apple Power Macintosh {
+	if (n == null)  return str;
+	return str + n;
+    }
+
+    public void hoge() throws Exception keeps (iii == 0) {}
+    public void hoge1() keeps DEF.equals( "string" ) {}
+    public void hoge2() keeps Test.DEF.equals( "string" ) {}
+    public void hoge2( String[] args ) keeps (args.length == 1) {}
+    public void hoge3(int arg) pre arg > 1 {}
+
+    public void f() {
+	System.out.println( "Hello" );
+    }
+
+    public void f1()
+        before {
+            System.out.println( "before" );
+        }
+    {
+	System.out.println( "Hello" );
+    }
+
+    public void f2()
+        after {
+            System.out.println( "after" );
+        }
+    {
+	System.out.println( "Hello" );
+    }
+
+    public void f3()
+        before {
+            System.out.println( "before" );
+        }
+        after {
+            System.out.println( "after" );
+        }
+    {
+	System.out.println( "Hello" );
+    }
+
+    public void g1() chooses { System.out.println( "Test" ); }
+    {}
+
+    public void g2() chooses Object[]
+    {}
+
+}

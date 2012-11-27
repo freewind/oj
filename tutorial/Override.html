@@ -1,0 +1,181 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN"> 
+<html>
+
+
+<head>
+<title>OpenJava : Tutorial</title>
+<meta http-equiv="Keywords" content="java, openjava, reflection">
+</head>
+
+
+<body bgcolor="white"
+        text="#000000" link="#007fff" vlink="#006fdf" alink="#ff0000">
+
+
+<h2><!---------------------------------------------------------------------->
+
+
+<center>
+
+<h1><font color="Blue">OpenJava Tutorial</font></h1>
+
+</center>
+
+
+<!---------------------------------------------------------------------->
+<hr width="100%">
+<!---------------------------------------------------------------------->
+
+
+4. <font color="blue">Custom Modifiers</font>
+</h2>
+
+<p>OpenJava allows meta-programmer to extend the syntax of language in
+limited way.  The easiest part of the syntax extension is adding
+new modifiers for class declaration or member declarations.
+
+<p>In this section, suppose an example of syntax extension for method
+declarations which explicitly describes the modified method should
+override the methed in superclasses.  With this extension, base-level
+programmers can detect errors at compile-time.  Otherwise,
+the regular Java compiler doesn't complain about it because it's
+proper method declaration defining a new method in the class.
+
+
+<h3>2.1. What the base-level program should look like</h3>
+
+<p>In defining a new class which must override some methods in
+superclasses, programmers would add the modifier <tt>overriding</tt>
+to each method overriding the corresponding method in superclasses.
+Here, we define a new class <b>MyObject</b> which surely overrides
+the method <tt>toString()</tt> in the superclass <b>java.lang.Object</b>:
+
+<br><blockquote><pre><font color=darkblue>
+public class <font color=black>MyObject</font> instantiates <font color=black>OverrideCheckerClass</font> {
+    public <b>overriding</b> <font color=black>String</font> toString() {
+        return "<i>MyString</i>";
+    }
+}
+</font></pre></blockquote>
+
+<p>OpenJava compiler doesn't show any error message for this source code
+as it overrides the supermethod properly.  But the system should
+show some error messages if the source code is as follows:
+
+<br><blockquote><pre><font color=darkblue>
+public class <font color=black>MyObjectWithError</font> instantiates <font color=black>OverrideCheckerClass</font> {
+    public <b>overriding</b> <font color=black>String</font> toStr<b>u</b>ng() {
+        return "<i>MyString</i>";
+    }
+}
+</font></pre></blockquote>
+
+because there is no <tt>toStrung()</tt> method in the superclasses
+of the class <b>MyObjectWithError</b>.
+
+
+<h3>2.2. What the base-level program should be translated</h3>
+
+<p>In this example, only the error checking is performed thus no translation
+of source code are performed by the metaclass.  Thus the system
+should produce the source code in the regular Java like following for
+the class <b>MyObject</b>:
+
+<br><blockquote><pre><font color=darkblue>
+public class <font color=black>MyObject</font> {
+    public <font color=black>String</font> toString() {
+        return "<i>MyString</i>";
+    }
+}
+</font></pre></blockquote>
+
+<p>Only the difference from the original is the absense of the
+extended modifier <tt>overriding</tt>.
+
+
+<h3>2.3. Write a meta-level program</h3>
+
+<p>Extended modifiers are automatically removed by the
+system in generating source code.  Thus we do not have to care about
+it here.
+
+We should define such a metaclass <b>OverrideCheckerClass</b>
+to override two methods.  The first method:
+
+<br><blockquote><pre><font color=darkblue>
+public static boolean isRegisteredModifier(String)
+</font></pre></blockquote>
+is for the purpose of allowing the custom modifier <tt>overriding</tt>.
+
+<p>And the second method is:
+
+<br><blockquote><pre><font color=darkblue>
+public void translateDefinition()
+</font></pre></blockquote>
+
+Though there are no translation, we must show alert in case of missing
+overriding.
+
+<p>The source code following is a such implementation.
+
+<br><blockquote><pre><font color=darkblue>
+import openjava.mop.*;
+import openjava.ptree.*;
+public class <font color=black>OverrideCheckerClass</font> instantiates <font color=black>Metaclass</font> extends <font color=black>OJClass</font>
+{
+    private static final <font color=black>String</font> OVERRIDING = "overriding";
+
+    public static <font color=black>boolean</font> isRegisteredModifier( <font color=black>String</font> keyword ) {
+        if (keyword.equals( OVERRIDING ))  return true;
+        return <font color=black>OJClass</font>.isRegisteredModifier( keyword );
+    }
+
+    public <font color=black>void</font> translateDefinition() throws <font color=black>MOPException</font> {
+        <font color=black>OJMethod</font>[] methods = getDeclaredMethods();
+        for (<font color=black>int</font> i = 0; i < methods.length; ++i) {
+            if (! methods[i].getModifiers().has( OVERRIDING ))  continue;
+            <font color=black>String</font> name = methods[i].getName();
+            <font color=black>OJClass</font>[] ptypes = methods[i].getParameterTypes();
+            try {
+                getSuperclass().getMethod( name, ptypes, this );
+            } catch (<font color=black>NoSuchMemberException</font> e) {
+                <font color=black>System</font>.err.println( "<i>warning: </i> " + methods[i] + "<i> doesn't </i>" +
+                                    "<i>override any method in the superclasses.</i>" );
+            }
+        }
+    }
+
+}
+</font></pre></blockquote>
+
+<p>In order to add a new modifier, we override the method
+<tt>isRegisteredModifier()</tt> and make it return true for the
+<b>String</b> object <tt>"overriding"</tt>.
+
+
+<!---------------------------------------------------------------------->
+<hr width="100%">
+<!---------------------------------------------------------------------->
+
+
+<center>
+
+Please send any message to :
+<address>
+mich@acm.org
+</address><BR>
+
+</center>
+
+
+<font size=1>Copyright (C) 1999 by Michaki Tatsubori.</font><br>
+<font size=1>Java(TM) is a trademark of Sun Microsystems, Inc.</font>
+
+
+<!---------------------------------------------------------------------->
+
+
+</body>
+
+
+</html>

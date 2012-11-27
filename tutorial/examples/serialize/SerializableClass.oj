@@ -1,0 +1,121 @@
+package examples.serialize;
+
+import openjava.mop.*;
+import openjava.ptree.*;
+import openjava.syntax.*;
+
+
+/**
+ * The class <code>CapsuleClass</code> is a metaclass which
+ * adds methods for serialization of the instances of the class.
+ */
+public class SerializableClass instantiates Metaclass extends OJClass
+{
+    /** Overrides to translate definition of the class */
+    public void translateDefinition() throws MOPException {
+	OJClass baseClass = getSuperclass();
+	
+	OJField[] fields = getDeclaredFields();
+
+	addReaderMethod(fields);
+	addWriterMethod(fields);
+    }
+
+    convenient void addReaderMethod(OJField[] fieldsToWrite)
+	throws MOPException
+    {
+	OJClass declaringClass = this;
+	OJModifier modifier = OJModifier.constantEmpty().setPublic();
+	OJClass returnType = OJSystem.VOID;
+	String methodName = "readObject";
+	OJClass[] paramTypes = new OJClass[]{ObjectIn.class};
+	String[] paramNames = new String[]{"in"};
+	OJClass[] exepTypes = new OJClass[]{java.io.IOException.class};
+	OJMethod reader
+	    = new OJMethod(this, modifier, returnType, methodName,
+			   paramTypes, paramNames, exepTypes, null);
+	addMethod(reader);
+
+	Environment env = reader.getEnvironment();
+	StatementList body = new StatementList();
+	for (int i = 0; i < fieldsToWrite.length; ++i) {
+	    body.add(createReadExprFor(env, fieldsToWrite[i]));
+	}
+	reader.setBody(body);
+    }
+
+    Statement createReadExprFor(Environment env, OJField field)
+	throws MOPException
+    {
+	OJClass type = field.getType();
+	String name = field.getName();
+	if (type == OJSystem.STRING) {
+	    return makeStatement(env, name + " = in.readUTF();");
+	} else if (type == OJSystem.BYTE) {
+	    return makeStatement(env, name + " = in.readByte();");
+	} else if (type == OJSystem.BOOLEAN) {
+	    return makeStatement(env, name + " = in.readBoolean();");
+	} else if (type == OJSystem.CHAR) {
+	    return makeStatement(env, name + " = in.readChar();");
+	} else if (type == OJSystem.INT) {
+	    return makeStatement(env, name + " = in.readInt();");
+	} else if (type == OJSystem.LONG) {
+	    return makeStatement(env, name + " = in.readLong();");
+	} else if (type.isArray()) {
+	    return null;  /* not implemented yet. */
+	} else if (! type.isPrimitive()) {
+	    return makeStatement(env, name + " = in.readObject();");
+	}
+	return null;
+    }
+
+    convenient void addWriterMethod(OJField[] fieldsToWrite)
+	throws MOPException
+    {
+	OJClass declaringClass = this;
+	OJModifier modifier = OJModifier.constantEmpty().setPublic();
+	OJClass returnType = OJSystem.VOID;
+	String methodName = "writeObject";
+	OJClass[] paramTypes = new OJClass[]{ObjectOut.class};
+	String[] paramNames = new String[]{"out"};
+	OJClass[] exepTypes = new OJClass[]{java.io.IOException.class};
+	OJMethod writer
+	    = new OJMethod(this, modifier, returnType, methodName,
+			   paramTypes, paramNames, exepTypes, null);
+	addMethod(writer);
+
+	Environment env = writer.getEnvironment();
+	StatementList body = new StatementList();
+	body.add(makeStatement(env, "out.writeUTF(\"" + getName() + "\");"));
+	for (int i = 0; i < fieldsToWrite.length; ++i) {
+	    body.add(createWriteExprFor(env, fieldsToWrite[i]));
+	}
+	writer.setBody(body);
+    }
+
+    Statement createWriteExprFor(Environment env, OJField field)
+	throws MOPException
+    {
+	OJClass type = field.getType();
+	String name = field.getName();
+	if (type == OJSystem.STRING) {
+	    return makeStatement(env, "out.writeUTF(" + name + ");");
+	} else if (type == OJSystem.BYTE) {
+	    return makeStatement(env, "out.writeByte(" + name + ");");
+	} else if (type == OJSystem.BOOLEAN) {
+	    return makeStatement(env, "out.writeBoolean(" + name + ");");
+	} else if (type == OJSystem.CHAR) {
+	    return makeStatement(env, "out.writeChar(" + name + ");");
+	} else if (type == OJSystem.INT) {
+	    return makeStatement(env, "out.writeInt(" + name + ");");
+	} else if (type == OJSystem.LONG) {
+	    return makeStatement(env, "out.writeLong(" + name + ");");
+	} else if (type.isArray()) {
+	    return null;  /* not implemented yet. */
+	} else if (! type.isPrimitive()) {
+	    return makeStatement(env, "out.writeObject(" + name + ");");
+	}
+	return null;
+    }
+
+}

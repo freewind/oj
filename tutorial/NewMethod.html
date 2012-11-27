@@ -1,0 +1,209 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN"> 
+<html>
+
+
+<head>
+<title>OpenJava : Tutorial</title>
+<meta http-equiv="Keywords" content="java, openjava, reflection">
+</head>
+
+
+<body bgcolor="white"
+        text="#000000" link="#007fff" vlink="#006fdf" alink="#ff0000">
+
+
+<h2><!---------------------------------------------------------------------->
+
+
+<center>
+
+<h1><font color="Blue">OpenJava Tutorial</font></h1>
+
+</center>
+
+
+<!---------------------------------------------------------------------->
+<hr width="100%">
+<!---------------------------------------------------------------------->
+
+
+4. <font color="blue">Generating New Methods</font>
+</h2>
+<p>
+
+A MOP version of "hello world" is verbose objects, which print a message
+for every method call.
+We choose them as our first example.
+<p>
+The MOP programming in OpenJava is done through three steps :
+(1) decide what the base-level program should look like,
+(2) figure out what it should be translated into and what runtime support
+code is needed,
+and (3) write a meta-level program to perform the translation and also
+write the runtime support code.
+We implement the verbose objects through these steps.
+<p>
+
+
+<h3>2.1. What the base-level program should look like</h3>
+<p>
+
+Most of example programs given in the text are ready to be executed by
+the OpenJava system and are similar in form to:
+
+<br><blockquote><pre>
+public class <b>Hello</b> instantiates <b>VerboseClass</b> {
+    public static void main( String[] args ) {
+        hello();
+    }
+    static void hello() {
+        System.out.println( "<i>Hello, world.</i>" );
+    }
+}
+</pre></blockquote>
+
+This is an ordinary source code except for the first line.
+The annotation in the first line :
+
+<br><blockquote><pre>
+instantiates <b>VerboseClass</b>
+</pre></blockquote>
+
+is a special annotation for OpenJava, and means that the semantics of
+the class <b>Hello</b>, called metaobject, is specified to be extended
+by the class <b>VerboseClass</b>, called metaclass.  In practice, the
+source code of the class <b>Hello</b> is translated by the object of
+the metaclass <b>VerboseClass</b>.
+
+<p>
+
+
+<h3>2.2. What the base-level program should be translated</h3>
+<p>
+
+In this example, consider the metaclass <b>VerboseClass</b> to extend
+the metaobjects to show messages for every call for its methods.  In
+practice, the statement in order to put the message into system
+standard output is to be inserted at the first line of each methods'
+body in the class <b>Hello</b> via the metaclass <b>VerboseClass</b>.  Then
+the first source code of class <b>Hello</b> should be translated into:
+
+<br><blockquote><pre>
+public class Hello {
+    public static void main( String[] args ) {
+        System.out.println( "<i>main is called.</i>" );
+        hello();
+    }
+    static void hello() {
+        System.out.println( "<i>hello is called.</i>" );
+        System.out.println( "<i>Hello, world.</i>" );
+    }
+}
+</pre></blockquote>
+
+<p>
+
+
+<h3>2.3. Write a meta-level program</h3>
+<p>
+
+Now, we write a meta-level program.  What we should do is to translate
+only method member in the class <b>Hello</b> in the way shown above.
+We can easily do that if we use the MOP.
+<p>
+
+In OpenJava, classes are objects as in Smalltalk.  We call them class
+metaobjects when we refer to their meta-level representation.  A
+unique feature of OpenJava is that a class metaobject translates the
+source code defining the class at compile time.  For example, the
+class metaobject for <b>Hello</b> translates a method declaration
+<b>hello()</b>.
+<p>
+
+By default, class metaobjects are identity functions; they do not change
+the program. So, to implement our translation, we define a new metaclass
+- a new class for class metaobjects - and use it to make the class
+metaobject for <b>Hello</b>.
+<p>
+
+Such a metaclass <b>VerboseClass</b> has been compiled and is similar
+to in form to:
+
+<br><blockquote><pre><font color=darkblue>
+import openjava.mop.*;
+import openjava.ptree.*;
+public class <font color=black>VerboseClass</font> instantiates <font
+color=black>Metaclass</font> extends <font color=black>OJClass</font>
+{
+    public <font color=black>void</font> translatioDefinition() throws <font color=black>MOPException</font> {
+        <font color=black>OJMethod</font>[] methods = getDeclaredMethods();
+        for (<font color=black>int</font> i = 0; i < methods.length; ++i) {
+            <font color=black>Statement</font> printer = makeStatement(
+                "<font color=gray><i>System.out.println( \"</i></font>" + methods[i].getName() +
+                "<font color=gray><i> is called.\" );</i></font>"
+            );
+            methods[i].getBody().insertElementAt( printer, 0 );
+        }
+    }
+}   
+</font></pre></blockquote>
+
+The metaclass <b>VerboseClass</b> is just a regular Java class.  It
+inherits from <b>openjava.mop.OJClass</b> and overrides one member
+function.  <b>translateMethodDeclaration</b> takes an object of the
+class <b>MethodDeclaration</b> and returns the translated one.  Both
+the given expression and the translated one are represented in the
+form of parse tree.
+<p>
+
+
+<h3>2.4. Compile, debug, and run</h3>
+<p>
+
+On a Sun workstation, the first class, stored in the file
+<tt>Hello.oj</tt>, can be translated into Java source code file named
+<tt>Hello.java</tt> and the generated source code can be compiled into
+byte code file named <tt>Hello.class</tt> by giving the commands :
+
+<br><blockquote><pre>
+% ojc VerboseClass.oj
+% ojc Hello.oj
+</pre></blockquote>
+<p>
+
+Execution of its bytecode on JVM (Java Virtual Machine) produces the
+output :
+
+<br><blockquote><pre>
+main is called.
+hello is called.
+Hello, world.
+</pre></blockquote>
+<p>
+
+<!---------------------------------------------------------------------->
+<hr width="100%">
+<!---------------------------------------------------------------------->
+
+
+<center>
+
+Please send any message to :
+<address>
+mich@acm.org
+</address><BR>
+
+</center>
+
+
+<font size=1>Copyright (C) 1999 by Michaki Tatsubori.</font><br>
+<font size=1>Java(TM) is a trademark of Sun Microsystems, Inc.</font>
+
+
+<!---------------------------------------------------------------------->
+
+
+</body>
+
+
+</html>

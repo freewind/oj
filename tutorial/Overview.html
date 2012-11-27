@@ -1,0 +1,208 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN"> 
+<html>
+
+
+<head>
+<title>OpenJava : Tutorial</title>
+<meta http-equiv="Keywords" content="java, openjava, reflection">
+</head>
+
+
+<body bgcolor="white"
+        text="#000000" link="#007fff" vlink="#006fdf" alink="#ff0000">
+
+
+<h2><!---------------------------------------------------------------------->
+
+
+<center>
+
+<h1><font color="Blue">OpenJava Tutorial</font></h1>
+
+</center>
+
+
+<!---------------------------------------------------------------------->
+<hr width="100%">
+<!---------------------------------------------------------------------->
+
+
+3. <font color="blue">API and Framework at a Glance</font>
+</h2>
+<p>
+
+<h3>3.1. Overriding for Translation</h3>
+
+<p>As already describe before, we define a translation on a class by
+defining a new subclass of the metaclass <b>openjava.mop.OJClass</b>.
+The new metaclass overrides some methods in <b>OJClass</b> to change
+how to translate sourcecode related to the base class.
+
+<p>The main part of translation may be the translation on class
+definition.  We call this kind of translation <i>callee-side
+translation</i>.  For the convenience of explanation, suppose a base
+class <b>MyObject</b> extended by a metaclass <b>MyClass</b>, like
+following:
+
+<br><blockquote><pre><font color=darkblue>
+public class MyObject instantiates MyClass
+{
+   public String str;
+   public int f() { return 1; }
+}
+</font></pre></blockquote>
+
+<p>To modify the source code at the callee-side of classes, we should
+override the following method:
+
+<br><blockquote><pre>
+public void translateDefinition()
+    throws MOPException
+</pre></blockquote>
+
+in the metaclass<b>MyClass</b>, which is a subclass of the
+metaclass<b>OJClass</b>.
+
+<p>Furthermore, the part possible to translate is where the class is
+used.  There are several part related to the use of class.
+i.e. object allocations, method calls, field accesses, ..  We call
+this kind of translation <i>caller-side translation</i>.  Similarly to
+callee-side translation, we should override appropriate methods in
+<b>OJClass</b>.
+
+<p>The following methods are for translation of object allocation parts.
+
+<br><blockquote><pre>
+public Expression expandAllocation(Evnironment,AllocationExpression)
+    throws MOPException
+</pre></blockquote>
+
+is applied to explessions like: <code><font color=darkblue>new
+MyObject()</font></code>, and
+
+<br><blockquote><pre>
+public Expression expandArrayAllocation(Evnironment,ArrayAllocationExpression)
+    throws MOPException
+</pre></blockquote>
+is applied for explessions like: <code><font color=darkblue>new
+MyObject[10]</font></code> or <code><font color=darkblue>new
+MyObject[]{ null, null }</font></code>
+
+<p>Here, suppose a variable <code><font color=darkblue>obj</font>
+</code> is declared somewhere as follows:
+
+<br><blockquote><pre><font color=darkblue>
+MyObject obj;
+</font></pre></blockquote>
+
+<p>The following methods are for translation of member access on either
+class or object.
+
+<br><blockquote><pre>
+public Expression expandFieldRead(Evnironment,FieldAccess)
+    throws MOPException
+</pre></blockquote>
+
+is applied to explessions like: <code><font
+color=darkblue>obj.str</font></code>,
+
+<br><blockquote><pre>
+public Expression expandMethodCall(Evnironment,MethodCall)
+    throws MOPException
+</pre></blockquote>
+
+is applied to explessions like: <code><font
+color=darkblue>obj.f()</font></code>, and
+
+<br><blockquote><pre>
+public Expression expandFieldWrite(Evnironment,AssignmentExpression)
+    throws MOPException
+</pre></blockquote>
+is applied to explessions like: <code><font color=darkblue>obj.str =
+"Hello"</font></code>
+
+
+<p>The following methods are for translation of where the name of the
+class appears.
+
+<br><blockquote><pre>
+public Expression expandTypeName(Evnironment,TypeName)
+    throws MOPException
+</pre></blockquote>
+
+<p>
+<br><blockquote><pre>
+public Expression expandArrayAccess(Evnironment,ArrayAccess)
+    throws MOPException
+public Expression expandAssignmentExpression(Evnironment,AssignmentExpression)
+    throws MOPException
+public Expression expandExpression(Evnironment,Expression)
+    throws MOPException
+public Statement expandVariableDeclaration(Evnironment,VariableDeclaration)
+    throws MOPException
+</pre></blockquote>
+<p>
+
+<h3>3.2. Getting Information of Class Metaobjects</h3>
+
+<p>In the overriding methods, we can get information about the class by
+using the methods defined in <b>OJClass</b> such as follows:
+<ul>
+<li><pre>public String getName()</pre>
+<li><pre>public OJClass getSuperclass()</pre>
+<li><pre>public OJClass[] getInterfaces()</pre>
+<li><pre>public OJField[] getDeclaredFields()</pre>
+<li><pre>public OJField[] getFields(OJClass situation)</pre>
+<li><pre>public OJMethod[] getDeclaredMethods()</pre>
+<li><pre>public OJMethod[] getMethods(OJClass situation)</pre>
+<li><pre>public OJConstructor[] getDeclaredConstructors()</pre>
+<li><pre>public OJConstructor[] getConstructors(OJClass situation)</pre>
+<li><pre>public OJField getField(String name)</pre>
+<li><pre>public OJMethod getMethod(String name,OJClass[] parameterTypes)</pre>
+<li><pre>public OJConstructor getConstructor(OJClass[] parameterTypes)</pre>
+</ul>
+
+<h3>3.3. Modifying a Class Metaobject</h3>
+
+<p>In the overriding <tt>translateDefinition()</tt> method, we can modify
+the class definition by using the methods defined in <b>OJClass</b>
+such as follows:
+
+<ul>
+<li><pre>protected OJField addField(OJField field)</pre>
+<li><pre>protected OJField removeField(OJField field)</pre>
+<li><pre>protected OJMethod addMethod(OJMethod method)</pre>
+<li><pre>protected OJMethod removeMethod(OJMethod method)</pre>
+<li><pre>protected OJConstructor addConstructor(OJConstructor constr)</pre>
+<li><pre>protected OJConstructor removeConstructor(OJConstructor constr)</pre>
+</ul>
+
+<p>
+
+
+<!---------------------------------------------------------------------->
+<hr width="100%">
+<!---------------------------------------------------------------------->
+
+
+<center>
+
+Please send any message to :
+<address>
+mich@acm.org
+</address><BR>
+
+</center>
+
+
+<font size=1>Copyright (C) 1999 by Michaki Tatsubori.</font><br>
+<font size=1>Java(TM) is a trademark of Sun Microsystems, Inc.</font>
+
+
+<!---------------------------------------------------------------------->
+
+
+</body>
+
+
+</html>

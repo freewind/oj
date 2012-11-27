@@ -1,0 +1,152 @@
+/*
+ * AdapterClass.oj
+ *
+ * An OpenJava example to support programming with the Adapter pattern.
+ *
+ * @author   Michiaki Tatsubori
+ * @version  %VERSION% %DATE%
+ * @see      java.lang.Object
+ *
+ * COPYRIGHT 1999 by Michiaki Tatsubori, ALL RIGHTS RESERVED.
+ */
+package examples.adapter;
+
+
+import java.lang.Object;
+import openjava.mop.*;
+import openjava.ptree.*;
+import openjava.syntax.*;
+
+
+/**
+ * The metaclass <code>AdapterClass</code> supports classes
+ * implementing an adapter role of the Adapter pattern.
+ * The target's methods with same signatures as the adaptee's are
+ * automatically implemented into the adapter class.
+ * <p>
+ * For example, the class <code>VectorStack</code>:
+ * <pre>
+ * public class VectorStack instantiates AdapterClass
+ *    adapts Vector in v to Stack
+ * {
+ *    Vector v;
+ *    public VectorStack( Vector v ) {
+ *        this.v = v;
+ *    }
+ *    public void push( Object o ) {
+ *        v.addElement( o );
+ *    }
+ *    public Object pop() {
+ *        return v.removeElementAt( v.size() - 1 );
+ *    }
+ * }
+ * </pre>
+ * would be automatically implemented with the forwarding methods
+ * size(), isEmpty(), hashCode(), etc, which are found in both
+ * the class Vector(adaptee) and the class Stack(target).
+ * <p>
+ *
+ * @author   Michiaki Tatsubori
+ * @version  1.0
+ * @since    %SOFTWARE% 1.0
+ * @see java.lang.Object
+ */
+public class AdapterClass instantiates Metaclass extends OJClass
+{
+
+    public static final String KEY_ADAPTS = "adapts";
+
+    /* overrides for translation */
+    public void translateDefinition() throws MOPException {
+	OJClass target = getTarget(), adaptee = getAdaptee();
+        if (target == null || adaptee == null)  return;
+
+        /* implicit forwarding to the same signature's */
+        OJMethod[] adapteds = adaptee.getMethods( this );
+        for (int i = 0; i < adapteds.length; ++i) {
+            /* picks up the method with same signature */
+	    OJMethod m;
+	    try {
+		m = getTarget().getMethod( adapteds[i].getName(),
+					   adapteds[i].getParameterTypes(),
+					   this );
+	    } catch ( NoSuchMemberException e ) { /* not match */ continue; }
+            
+            /* generate a forwarding method with forwarded's name */
+            addMethod( makeForwardingMethod( m.getName(), m ) );
+        }
+
+	addInterface( getTarget() );
+    }
+
+    /**
+     * Generates a forwarding method with specified name.
+     *
+     * @param  name  generating method's name.
+     * @param forwarded  method to which the generated method forwards.
+     * @return  a generated forwarding method.
+     */
+    private OJMethod makeForwardingMethod( String name, OJMethod forwarded )
+        throws MOPException
+    {
+        /* generates a new method without body */
+	OJMethod result = new OJMethod(
+	    this,
+	    forwarded.getModifiers().remove( OJModifier.ABSTRACT ),
+	    forwarded.getReturnType(),
+	    name,
+	    forwarded.getParameterTypes(),
+	    forwarded.getExceptionTypes(),
+	    null
+	    );
+
+	/* generates a method call and return statement */
+	ExpressionList params = result.getParameterVariables();
+        Expression expr = new MethodCall( getContainer(), name, params );
+        StatementList body = new StatementList();
+        if (forwarded.getReturnType() == OJSystem.VOID) {
+            body.add( new ExpressionStatement( expr ) );
+            body.add( new ReturnStatement() );
+        } else {
+            body.add( new ReturnStatement( expr ) );
+        }
+
+	result.setBody( body );
+        return result;
+    }
+
+    /* extended information */
+
+    private OJClass getAdaptee() throws MOPException {
+        ObjectList suffix = (ObjectList) getSuffix( KEY_ADAPTS );
+	return OJClass.forName( suffix.get( 0 ).toString() );
+    }
+
+    private Variable getContainer() throws MOPException {
+        ObjectList suffix = (ObjectList) getSuffix( KEY_ADAPTS );
+	return new Variable( suffix.get( 1 ).toString() );
+    }
+
+    private OJClass getTarget() throws MOPException {
+        ObjectList suffix = (ObjectList) getSuffix( KEY_ADAPTS );
+	return OJClass.forName( suffix.get( 2 ).toString() );
+    }
+
+    /* override to extend syntax */
+    public static boolean isRegisteredKeyword( String keyword ) {
+        return keyword.equals( KEY_ADAPTS );
+    }
+
+    /* override to extend syntax */
+    public static SyntaxRule getDeclSuffixRule( String keyword ) {
+	if (keyword.equals( KEY_ADAPTS )) {
+	    return new CompositeRule(
+                new TypeNameRule(),
+		new PrepPhraseRule( "in", new NameRule() ),
+		new PrepPhraseRule( "to", new TypeNameRule() ) );
+	}
+	return null;
+    }
+
+}
+

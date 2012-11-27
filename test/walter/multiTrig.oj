@@ -1,0 +1,65 @@
+package walter;
+
+import openjava.ptree.*;
+import openjava.ptree.ModifierList;
+import openjava.mop.*;
+
+public class multiTrig instantiates Metaclass extends OJClass {
+
+	private static final String MULTI_TRIG = "multi_trig";
+	private final int triggerValue = 10;
+
+	public static boolean isRegisteredModifier(String keyword) {
+		if (keyword.equals(MULTI_TRIG))
+			return true;
+		return OJClass.isRegisteredModifier(keyword);
+	}
+
+	public void translateDefinition() throws MOPException {
+		OJMethod[] methods = getDeclaredMethods();
+		for (int i = 0; i < methods.length; ++i) {
+			if (!methods[i].getModifiers().has(MULTI_TRIG))
+				continue;
+			String name = methods[i].getName(); // is a multi-trigged method 
+			ModifierList ml = new ModifierList(ModifierList.PRIVATE);
+			TypeName tn = new TypeName("int");
+			/* inserts a field for counting the method calls
+			   private int <method name>Counter = 0         */
+			String counterName = name + "Counter";
+			VariableInitializer vi = Literal.makeLiteral(0);
+			FieldDeclaration fd = new FieldDeclaration(ml, tn, counterName, vi);
+			OJField field = new OJField(getEnvironment(), this, fd);
+			addField(field);
+
+			/* inserts a field keeping the trigger value
+			   private int <method name>Trigger = 10        */
+			String triggerName = name + "Trigger";
+			vi = Literal.makeLiteral(triggerValue);
+			fd = new FieldDeclaration(ml, tn, triggerName, vi);
+			field = new OJField(getEnvironment(), this, fd);
+			addField(field);
+
+			/* inserts a precondition on the execution of the method body 
+			   if (<method name>Counter == <method name>Trigger) {
+			   and a post action
+			   <method body>
+			   <method name>Counter = 0;
+			   } <method name>Counter++;                                 */
+			StatementList newBody =
+				makeStatementList(
+					methods[i].getEnvironment(),
+					"if ("
+						+ counterName
+						+ " == "
+						+ triggerName
+						+ ") {"
+						+ methods[i].getBody().toString()
+						+ counterName
+						+ "=0;}; "
+						+ counterName
+						+ "++;");
+			methods[i].setBody(newBody);
+		}
+	}
+
+}

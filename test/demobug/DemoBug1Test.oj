@@ -1,0 +1,5 @@
+package demobug;
+
+public class DemoBug1Test instantiates DemoBug1 {
+        int a;
+};

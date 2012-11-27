@@ -1,0 +1,24 @@
+package cristophe;
+
+public class Test instantiates SigPrintClass
+{
+    public void f() {
+    }
+
+    public String g(String s, int i) {
+		return null;
+    }
+
+}
+
+
+class Test2 instantiates SigPrintClass
+{
+    public void f() {
+    }
+
+    public String g(String s, int i) {
+		return null;
+    }
+
+}

@@ -1,0 +1,71 @@
+import luciano;
+
+import openjava.mop.*;
+import openjava.ptree.*;
+import openjava.syntax.*;
+import openjava.ptree.util.VariableBinder;
+
+/**
+ * This metaclass appends a constructor of a String parameter.
+ * It makes no sense but shows an example of adding a special
+ * statement of calling super constructor.
+ */
+public class AutoConstructorClass instantiates Metaclass extends OJClass {
+	public convenient void translateDefinition() throws MOPException {
+		System.out.println("translateDefinition() of " + getName());
+		if (doesClassHaveStringCons())
+			return;
+		if (!doesSuperHaveDefaultCons())
+			return;
+
+		OJConstructor con =
+			new OJConstructor(
+				this,
+				OJModifier.forModifier(OJModifier.PUBLIC),
+				new OJClass[] { String.class },
+				new OJClass[0],
+				null,
+				null /* temporally */
+		);
+
+		ExpressionList conargs = con.getParameterVariables();
+		Expression conarg = conargs.get(0);
+
+		/* "super()" */
+		ConstructorInvocation ci =
+			new ConstructorInvocation(new ExpressionList(), null);
+
+		/* other part of constructors' body */
+		StatementList body =
+			makeStatementList(
+				con.getEnvironment(),
+				"/* test */" + "java.lang.System.out.println(" + conarg + ");");
+
+		con.setTransference(ci);
+		con.setBody(body);
+
+		addConstructor(con);
+	}
+
+	private convenient boolean doesClassHaveStringCons() {
+		try {
+			this.getConstructor(new OJClass[] { String.class }, this);
+			return true;
+		} catch (NoSuchMemberException ex) {
+			return false;
+		}
+	}
+
+	private boolean doesSuperHaveDefaultCons() {
+		OJClass baseclazz = this.getSuperclass();
+		if (baseclazz == null)
+			return false;
+		try {
+			baseclazz.getConstructor(new OJClass[0], this);
+			return true;
+		} catch (NoSuchMemberException ex) {
+			return false;
+		}
+	}
+
+}

@@ -1,0 +1,26 @@
+package walter2;
+
+import sun.applet.*;
+import java.applet.*;
+import java.lang.*;
+import java.net.*;
+import java.util.*;
+
+public class Test {
+
+	public static void main(String argv[]) throws Exception {
+		System.out.println(Object[].class.isAssignableFrom(String[].class));
+		System.out.println(Float.class.isAssignableFrom(Integer.class));
+		System.out.println(float.class.isAssignableFrom(int.class));
+		System.out.println(int.class.isAssignableFrom(float.class));
+		System.out.println(float.class.isAssignableFrom(double.class));
+		System.out.println(double.class.isAssignableFrom(float.class));
+		System.out.println(int.class.isAssignableFrom(long.class));
+		System.out.println(long.class.isAssignableFrom(int.class));
+
+		foo(1);
+	}
+
+	public static void foo(double i) {
+	}
+}

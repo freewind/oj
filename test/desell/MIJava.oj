@@ -1,0 +1,7 @@
+package desell;
+
+import openjava.mop.*;
+import openjava.ptree.*;
+import openjava.syntax.*;
+public class MIJava instantiates Metaclass extends OJClass {
+}

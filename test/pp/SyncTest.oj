@@ -1,0 +1,8 @@
+package pp;
+
+public class SyncTest
+{
+    void f() {
+	synchronized (this) {}
+    }
+}

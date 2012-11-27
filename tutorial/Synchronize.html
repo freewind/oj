@@ -1,0 +1,131 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN"> 
+<html>
+
+
+<head>
+<title>OpenJava : Tutorial</title>
+<meta http-equiv="Keywords" content="java, openjava, reflection">
+</head>
+
+
+<body bgcolor="white"
+        text="#000000" link="#007fff" vlink="#006fdf" alink="#ff0000">
+
+
+<h2><!---------------------------------------------------------------------->
+
+
+<center>
+
+<h1><font color="Blue">OpenJava Tutorial</font></h1>
+
+</center>
+
+
+<!---------------------------------------------------------------------->
+<hr width="100%">
+<!---------------------------------------------------------------------->
+
+
+7. <font color="blue">Synchronization of Translation</font>
+</h2>
+<p>
+
+As the default behavior of OpenJava compiler, there is no assurance of
+callee-side translation ordering.  In the case that we make it sure to
+translate a class <b>SubMyObject</b> after a class <b>MyObject</b>, we
+can use the method <code>waitTranslation()</code> in
+<b>java.lang.OJClass</b>.
+
+<br><blockquote><pre>
+public void waitTranslation(OJClass)
+    throws MOPException
+</pre></blockquote>
+
+At the invocation of this method, the translation on the current
+class declaration stops and it return to continue after the
+translation on the class given as the argument finished.
+
+<h3>7.1. Simple Examples</h3>
+<p>
+
+Furthermore, the part where that class is used comes.  There are
+several part related to the use of class.  i.e. object allocations,
+method calls, field accesses, ..  We call this kind of translation
+<i>caller-side translation</i>.
+<p>
+
+For the convenience of explanation, suppose a base class
+<b>MyObject</b> extended by a metaclass <b>MyClass</b>, like
+following:
+
+<br><blockquote><pre><font color=darkblue>
+public class <font color=black>SubMyObject</font> instantiates <font color=black>SyncClass</font> extends <font color=black>MyObject</font>
+{}
+class <font color=black>MyObject</font> instantiates <font color=black>AnotherClass</font>
+{}
+class <font color=black>SubSubMyObject</font> instantiates <font color=black>SyncClass</font> extends <font color=black>SubMyObject</font>
+{}
+</font></pre></blockquote>
+
+<br><blockquote><pre><font color=darkblue>
+public class <font color=black>SyncClass</font> instantiates <font color=black>Metaclass</font> extends <font color=black>OJClass</font>
+{
+   void translateDefinition() throws <font color=black>MOPException</font> {
+       <font color=black>OJClass</font> baseclazz = getSuperclass();
+       <font color=black>System</font>.out.println( getName() + "<i> is waiting for </i>" + base.getName() );
+       waitTranslation( baseclazz );
+       <font color=black>System</font>.out.println( getName() + "<i> finished</i>" );
+   }
+}
+</font></pre></blockquote>
+
+We can see the following messages in running OpenJava compiler.
+<br><blockquote><pre><font color=darkred>
+MyObject is waiting for java.lang.Object
+MyObject finished
+SubSubMyObject is waiting for SubMyObject
+SubMyObject is waiting for MyObject
+SubMyObject finished
+SubSubMyObject finished
+</font></pre></blockquote>
+<p>
+
+<h3>7.2. Deadlocks</h3>
+<p>
+
+In the case of the system detects some deadlocks,
+<code>waitTranslation()</code> throws an exception
+<code>MOPException</code>.  If already the translation of
+a class <b>A</b> were waiting for the translation of a class <b>B</b>,
+the invocation of <code>waitTranslation()</code> on the translation
+of the class <b>B</b> would not block but throw an exception.
+<p>
+
+
+<!---------------------------------------------------------------------->
+<hr width="100%">
+<!---------------------------------------------------------------------->
+
+
+<center>
+
+Please send any message to :
+<address>
+mich@acm.org
+</address><BR>
+
+</center>
+
+
+<font size=1>Copyright (C) 1999 by Michaki Tatsubori.</font><br>
+<font size=1>Java(TM) is a trademark of Sun Microsystems, Inc.</font>
+
+
+<!---------------------------------------------------------------------->
+
+
+</body>
+
+
+</html>

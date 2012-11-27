@@ -1,0 +1,39 @@
+package exampls.decorator;
+
+
+import java.io.Writer;
+import java.io.IOException;
+
+
+public class ReturnSpecifier instantiates DecoratorClass
+    decorates Writer in out
+{
+    private static final char[] mark = { '\\', '<' };
+
+    private Writer out;
+
+    public ReturnSpecifier(Writer out) {
+	this.out = out;
+    }
+
+    public void write(char cbuf[], int off, int len)
+	throws IOException 
+    {
+	int done = off;
+	for (int i = done; i < off + len; ++i) {
+	    if (cbuf[i] == Character.LINE_SEPARATOR
+		|| cbuf[i] == '\n')
+	    {
+		out.write(cbuf, done, i - done);
+		// print a mark for carriage return
+		out.write(mark, 0, mark.length);
+		// print a carriage return
+		out.write(cbuf, i, 1);
+		done = i + 1;
+	    }
+	}
+	out.write(cbuf, done, off + len - done);
+    }
+
+
+}

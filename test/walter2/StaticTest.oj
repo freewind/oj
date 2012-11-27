@@ -1,0 +1,11 @@
+package walter2;
+
+import java.util.*;
+
+public class StaticTest {
+
+	public void main(String[] args) {
+		StaticUtil.foo(args, new MyComp());
+	}
+
+}

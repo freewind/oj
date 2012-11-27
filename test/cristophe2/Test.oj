@@ -1,0 +1,21 @@
+pacakge cristophe2;
+
+public class Test instantiates MethodRemovingClass {
+	public void f() {
+	}
+
+	public String g(String s, int i) {
+		return null;
+	}
+
+}
+
+class Test2 instantiates MethodRemovingClass {
+	public String g(String s, int i) {
+		return null;
+	}
+
+	public void f() {
+	}
+
+}

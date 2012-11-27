@@ -1,0 +1,19 @@
+package dardia;
+
+public class Student instantiates InterImpl {
+    public Double GPA;
+
+    public Double getGPA() {
+        System.out.println("Student's getGPA() invoked!");
+        return GPA;
+    }
+
+    public void setGPA(Double _GPA) {
+        System.out.println("Student's setGPA() invoked!");
+        GPA = _GPA;
+    }
+
+    public String toString() {
+        return "Student's toString (GPA=" + GPA.toString() + ")";
+    }
+}

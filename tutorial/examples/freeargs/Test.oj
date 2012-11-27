@@ -1,0 +1,28 @@
+/*
+ * Test.oj
+ *
+ * Apr 13, 1999  Michiaki Tatsubori
+ */
+package examples.freeargs;
+
+
+import java.lang.Object;
+
+
+/**
+ * Just a test.
+ */
+public class Test
+{
+
+    /**
+     * This is main method.
+     */
+    public static void main( String[] args ) {
+	Collection c = new Collection();
+	c.set( new Integer( args.length ), args[0], args[1] );
+	c.add( new Integer( args.length ), args[0], args[1] );
+	System.out.println( c.size() );
+    }
+
+}

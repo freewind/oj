@@ -1,0 +1,18 @@
+import schulz;
+
+import openjava.mop.*;
+
+public class Sample instantiates Metaclass extends OJClass {
+
+	public void translateDefinition() throws MOPException {
+
+		OJConstructor[] tabCons = getConstructors();
+
+		if (tabCons.length > 0) {
+			tabCons[0].addExceptionType(
+				OJClass.forName("java.lang.ArithmeticException"));
+			tabCons[0].addExceptionType(
+				OJClass.forName("java.lang.ArrayStoreException"));
+		}
+	}
+}

@@ -1,0 +1,21 @@
+package thorsten;
+
+import openjava.mop.*;
+import openjava.ptree.*;
+import openjava.syntax.*;
+
+public class MetaTest instantiates Metaclass extends OJClass {
+
+	public static final String KEY_ADAPTS = "adapts";
+
+	/* overrides for translation */
+	public void translateDefinition() throws MOPException {
+		//StatementList metStmts = makeStatementList(
+		//    "String str = \"test\";"
+		//);
+		Statement metStmt = makeStatement("System.out.println( \"test\" );");
+		//Statement metStmt = makeStatement(
+		//    "String str = \"test\";"
+		//);
+	}
+}

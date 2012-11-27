@@ -1,0 +1,78 @@
+/*
+ * MetaTest.java
+ *
+ * comments here.
+ *
+ * @author   Michiaki Tatsubori
+ * @version  %VERSION% %DATE%
+ * @see      java.lang.Object
+ *
+ * COPYRIGHT 1999 by Michiaki Tatsubori, ALL RIGHTS RESERVED.
+ */
+package demobug;
+
+import java.lang.Object;
+import openjava.mop.*;
+import openjava.ptree.ClassDeclaration;
+import openjava.syntax.*;
+
+/**
+ * The class <code>MetaTest</code>
+ * <p>
+ * For example
+ * <pre>
+ * </pre>
+ * <p>
+ *
+ * @author   Michiaki Tatsubori
+ * @version  1.0
+ * @since    %SOFTWARE% 1.0
+ * @see java.lang.Object
+ */
+public class MetaTest extends OJClass {
+	public MetaTest(
+		Environment outer_env,
+		OJClass declarer,
+		ClassDeclaration ptree) {
+		super(outer_env, declarer, ptree);
+	}
+
+	public ClassDeclaration translateDefinition(
+		Environment env,
+		ClassDeclaration decl) {
+		OJMethod[] m = getAllMethods();
+		for (int i = 0; i < m.length; ++i) {
+			System.out.println(m[i].toString());
+		}
+		return decl;
+	}
+
+	public static boolean isRegisteredKeyword(String keyword) {
+		if (keyword.equals("likes"))
+			return true;
+		if (keyword.equals("hates"))
+			return true;
+		if (keyword.equals("loves"))
+			return true;
+		if (keyword.equals("forwards"))
+			return true;
+		return false;
+	}
+
+	public static SyntaxRule getDeclSuffixRule(String keyword) {
+		return new NameListRule();
+	}
+
+	public static SyntaxRule getTypeSuffixRule(String keyword) {
+		return new NameListRule();
+	}
+
+	public static boolean isRegisteredModifier(String keyword) {
+		if (keyword.equals("remote"))
+			return true;
+		if (keyword.equals("crazy"))
+			return true;
+		return false;
+	}
+
+}

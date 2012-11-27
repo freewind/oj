@@ -1,0 +1,6 @@
+package lionel2;
+
+public class SimpleConst {
+	public SimpleConst() {
+	}
+}

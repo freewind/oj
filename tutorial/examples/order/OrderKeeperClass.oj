@@ -1,0 +1,46 @@
+/*
+ * OrderKeeperClass.oj
+ *
+ */
+package examples.order;
+
+
+import openjava.mop.*;
+import openjava.ptree.ClassDeclaration;
+import openjava.syntax.*;
+
+
+public class OrderKeeperClass instantiates Metaclass extends OJClass
+{
+    private static final String DEPEND = "dependsOn";
+
+    public void translateDefinition() throws MOPException {
+        OJClass base = getDepended();
+	System.out.println( "I'm " + getName() + ".  " +
+			    "After You, " + base.getName() + "." );
+	try {
+	    waitTranslation( base );
+	} catch ( Exception e ) {
+	    System.err.println( e.toString() );
+	}
+
+	System.out.println( getName() + " is finished." );
+    }
+
+    private OJClass getDepended() throws MOPException {
+	return OJClass.forName( getSuffix( DEPEND ).toString() );
+    }
+
+    public static boolean isRegisteredKeyword( String keyword ) {
+	return keyword.equals( DEPEND );
+    }
+
+    public static SyntaxRule getDeclSuffixRule( String keyword ) {
+	return keyword.equals( DEPEND ) ? new TypeNameRule() : null;
+    }
+
+    public String toString() {
+	return super.toString() + "(mc : OrderKeeper)";
+    }
+
+}

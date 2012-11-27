@@ -1,0 +1,90 @@
+/*
+ * Simple.java
+ *
+ * comments here.
+ *
+ * @author   Michiaki Tatsubori
+ * @version  %VERSION% %DATE%
+ * @see      java.lang.Object
+ *
+ * COPYRIGHT 1998 by Michiaki Tatsubori, ALL RIGHTS RESERVED.
+ */
+package demobug;
+
+import java.awt.Panel;
+import java.util.*;
+import java.io.PrintStream;
+
+/**
+ * The class <code>Simple</code>
+ * <p>
+ * For example
+ * <pre>
+ * </pre>
+ * <p>
+ *
+ * @author   Michiaki Tatsubori
+ * @version  1.0
+ * @since    %SOFTWARE% 1.0
+ * @see java.lang.Object
+ */
+public class Simple instantiates MetaTest likes Apple, Macintosh hates Windows
+	extends Panel {
+	private int iii = 0;
+	;
+	;
+
+	private Simple n = null;
+
+	private String str = "string";
+
+	public Simple() {
+		super();
+	}
+
+	/**
+	 * @param  
+	 * @return  
+	 * @exception  
+	 * @see java.lang.Object
+	 */
+	public static void main(String[] argv) {
+		PrintStream out = System.out;
+		PrintStream error = java.lang.System.err;
+		out.println("Hello" + " " + "World");
+		Simple n = new Simple();
+		java.lang.System.err.println("done");
+	}
+
+	public void hoge() {
+		SLocal l = new SLocal();
+		System.out.println(l.foo);
+		System.out.println(l.bar.str);
+	}
+
+	public Simple(String str) {
+		this.str = str;
+		n = null;
+	}
+
+	public int foo() {
+		return iii;
+	}
+
+	public String toString() {
+		if (n == null)
+			return str;
+		return str + n;
+	};
+	;
+
+}
+
+class SLocal {
+	String foo = null;
+	SLocal2 bar = new SLocal2();
+}
+
+class SLocal2 {
+	String str = "" + "TEST";
+}

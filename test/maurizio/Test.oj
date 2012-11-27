@@ -1,0 +1,7 @@
+import maurizio;
+
+public class Test instantiates TestClass {
+	public String toString() {
+		return super.toString();
+	}
+}

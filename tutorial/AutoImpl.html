@@ -1,0 +1,150 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN"> 
+<html>
+
+
+<head>
+<title>OpenJava : Tutorial</title>
+<meta http-equiv="Keywords" content="java, openjava, reflection">
+</head>
+
+
+<body bgcolor="white"
+        text="#000000" link="#007fff" vlink="#006fdf" alink="#ff0000">
+
+
+<!---------------------------------------------------------------------->
+
+
+<center>
+
+<h1><font color="Blue">OpenJava Tutorial</font></h1>
+
+</center>
+
+
+<!---------------------------------------------------------------------->
+<hr width="100%">
+<!---------------------------------------------------------------------->
+
+
+<h2>5. <font color="blue">Automatic Methods Implementation</font></h2>
+
+
+<p>In this section, an example of simple translation at <i>callee-side</i>
+is described.
+
+<p>The callee-side of a class is whole the declration source code of the
+class.  Metaprogram in the metaclass for that class (base class)
+introspects that class definition in <code>this</code> class object
+through the inheriting <code>OJClass</code> interface.
+
+<p>Imagine an utility metaclass which automatically implements
+empty methods in its base classes according to their interfaces.
+
+<h3>5.1. What the base-level program should look like</h3>
+
+<p>A base class <code>QuickTest</code> has to implement an interface
+<code>java.awt.event.WindowListener</code>, which has several methods
+to have to be implemented, but we want to make most of these methods
+to have empty body, i.e. do nothing. 
+
+<br><blockquote><pre><font color=darkblue>
+import java.awt.event.*;
+public class <font color=black>QuickTest</font> <b>instantiates <font color=black>AutoImplementerClass</font></b>
+    implements <font color=black>WindowListener</font>
+{
+    public <font color=black>void</font> windowClosed( <font color=black>WindowEvent</font> e ) { <font color=black>System</font>.exit( 0 ); }
+}
+</font></pre></blockquote>
+
+
+<h3>5.2. What the base-level program should be translated</h3>
+
+<p>Like following:
+
+<br><blockquote><pre><font color=darkblue>
+public class <font color=black>QuickTest</font> instantiates <font color=black>AutoImplementerClass</font>
+    implements <font color=black>WindowListener</font>
+{
+    public <font color=black>void</font> windowClosed( <font color=black>WindowEvent</font> e ) { <font color=black>System</font>.exit( 0 ); }
+    <b>public <font color=black>void</font> windowIconified( <font color=black>WindowEvent</font> e ) { return; }</b>
+    <b>public <font color=black>void</font> windowDeactivated( <font color=black>WindowEvent</font> e ) { return; }</b>
+    ....
+}
+</font></pre></blockquote>
+
+
+<h3>5.3. Write a meta-level program</h3>
+
+<p>So.
+
+<br><blockquote><pre><font color=darkblue>
+import openjava.mop.*;
+import openjava.ptree.*;
+import openjava.syntax.*;
+
+public class AutoImplementerClass instantiates Metaclass extends OJClass
+{
+    public void translateDefinition() throws MOPException {
+        OJMethod[] methods = getInheritedMethods();
+        for (int i = 0; i < methods.length; ++i) {
+            if (! methods[i].getModifiers().isAbstract()
+                || methods[i].getReturnType() != OJSystem.VOID
+                || hasDeclaredMethod( methods[i] ))  continue;
+            addMethod( makeEmptyMethod( methods[i] ) );
+        }
+    }
+    ....
+}
+</font></pre></blockquote>
+
+<br><blockquote><pre><font color=darkblue>
+    private boolean hasDeclaredMethod( OJMethod m ) {
+	try {
+	    getDeclaredMethod( m.getName(), m.getParameterTypes() );
+	    return true;
+	} catch ( NoSuchMemberException e ) {
+	    return false;
+	}
+    }
+</font></pre></blockquote>
+
+<br><blockquote><pre><font color=darkblue>
+    private OJMethod makeEmptyMethod( OJMethod m ) throws MOPException {
+        /* generates a new method without body */
+        return new OJMethod( this,
+            m.getModifiers().remove( OJModifier.ABSTRACT ),
+            m.getReturnType(), m.getName(), m.getParameterTypes(),
+            m.getExceptionTypes(),
+            new StatementList( new ReturnStatement() )
+            );
+    }
+</font></pre></blockquote>
+
+
+<!---------------------------------------------------------------------->
+<hr width="100%">
+<!---------------------------------------------------------------------->
+
+
+<center>
+
+Please send any message to :
+<address>
+mich@acm.org
+</address><BR>
+
+</center>
+
+
+<font size=1>Copyright (C) 1999 by Michaki Tatsubori.</font><br>
+<font size=1>Java(TM) is a trademark of Sun Microsystems, Inc.</font>
+
+
+<!---------------------------------------------------------------------->
+
+
+</body>
+
+
+</html>

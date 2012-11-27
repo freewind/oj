@@ -1,0 +1,13 @@
+package examples.verbose;
+
+
+public class Hello instantiates VerboseClass
+{
+    public static void main(String[] argv) {
+	hello();
+    }
+
+    static void hello() {
+	System.out.println("Hello, world.");
+    }
+}

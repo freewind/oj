@@ -1,0 +1,52 @@
+package examples.multimethod;
+
+import java.awt.*;
+
+public class Test instantiates MultimethodClass
+{
+
+    public multiform void foo( Panel a ) {
+        System.out.println( "panel" );
+    }
+
+    public multiform void foo( Button a ) {
+        System.out.println( "button" );
+    }
+
+    public multiform void foo( Canvas a ) {
+        System.out.println( "canvas" );
+    }
+
+    public String toString() {
+	return super.toString();
+    }
+
+    public multiform String bar( Panel a, Button b ) {
+        return "panel";
+    }
+
+    public multiform String bar( Button a, Button b ) {
+        return "button";
+    }
+
+    public multiform String bar( Canvas a, Panel b ) {
+        return "canvas";
+    }
+
+    public multiform void foo( Panel a, Window b ) {
+        System.out.println( "panel" );
+    }
+
+    public multiform void foo( Button a, Dialog b ) {
+        System.out.println( "button" );
+    }
+
+    public multiform void foo( Canvas a, Dialog b ) {
+        System.out.println( "canvas" );
+    }
+
+    public multiform void foo( Canvas a, FileDialog b ) {
+        System.out.println( "canvas" );
+    }
+
+}

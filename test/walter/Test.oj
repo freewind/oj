@@ -1,0 +1,15 @@
+package walter;
+
+public class Test instantiates multiTrig {
+
+	public multi_trig void dummyMethod() {
+		System.out.println("dummyMethod was called");
+	}
+
+	public static void main(String[] argv) {
+		int i = 0;
+		Test dC = new Test();
+		for (; i <= 100; i++)
+			dC.dummyMethod();
+	}
+}

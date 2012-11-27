@@ -1,0 +1,7 @@
+package desell;
+
+public class TrivialSuperClass instantiates MIJava {
+    public void hello_world() {
+        System.out.println("Hello, World!");
+    }
+}

@@ -1,0 +1,49 @@
+/*
+ * VerboseClass.java
+ *
+ * @author   Michiaki Tatsubori
+ * @version  %VERSION% %DATE%
+ * @see      java.lang.Object
+ *
+ * COPYRIGHT 1999 by Michiaki Tatsubori, ALL RIGHTS RESERVED.
+ */
+package inner;
+
+import openjava.mop.*;
+import openjava.ptree.*;
+import openjava.syntax.*;
+
+public class VerboseClass instantiates Metaclass extends OJClass {
+
+	public VerboseClass(
+		Environment env,
+		openjava.mop.OJClass declaring,
+		ClassDeclaration cd) {
+		super(env, declaring, cd);
+		System.out.println(
+			"A class metaobject for "
+				+ cd.getName()
+				+ " created from source code.");
+	}
+
+	public VerboseClass(Class javaclazz, MetaInfo minfo) {
+		super(javaclazz, minfo);
+		System.out.println(
+			"A class metaobject for "
+				+ javaclazz.getName()
+				+ " created from byte code.");
+	}
+
+	/* overrides for translation */
+	public void translateDefinition() throws MOPException {
+		OJMethod[] methods = getDeclaredMethods();
+		for (int i = 0; i < methods.length; ++i) {
+			Statement printer =
+				makeStatement(
+					"java.lang.System.out.println( \""
+						+ methods[i].toString()
+						+ " was called\" );");
+			methods[i].getBody().insertElementAt(printer, 0);
+		}
+	}
+}

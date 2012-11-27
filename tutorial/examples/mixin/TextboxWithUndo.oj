@@ -1,0 +1,8 @@
+package examples.mixin;
+
+
+public class TextboxWithUndo instantiates MixinedClass
+    extends Textbox
+    mixes Undo
+{
+}

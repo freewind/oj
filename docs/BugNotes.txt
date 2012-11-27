@@ -1,0 +1,59 @@
+Notes about bugs in OpenJava 1.0 alpha release
+Michiaki Tatsubori
+Last update  Oct 10, 2000
+
+
+[Bug List and Bug-fix History]
+
+in build 20000905
+- Reporting NoSuchMemberException even for accessible innerclass's
+  or outerclass's member.
+  (fixed in 20001010)
+
+in build 20000627
+- Wrongly parsing an array-typed member fields declaration in which
+  brackets follows variable name.
+  (fixed in 20000905)
+
+in build 19990527
+- A constructor only with an explicit super constructor invocation
+  is failed to print.
+  (fixed in 20000627)
+
+in build 19990525
+- The ojc dosen't work for files without specifying its directory in
+  case of no -d option.  (fixed in 19990527)
+- The class CommandArguments use a method only available in Java 2.
+  (fixed in 19990527)
+- The parser dosn't reconize any synchronized statement.  (fixed in
+  19990527)
+
+in build 19990505
+- The only way to find nested classes using forName is to dollarify
+  the name. (fixed in 1990507)
+
+
+[Thanks to Contributers]
+	Antonio Leitao
+	Anurag Mendhekar
+	Bryn Keller
+	Cees de Groot
+	Jesse N. Glick
+	Joseph Smyth
+	Juan-Carlos Ruiz-Garcia
+	Kenneth Kasajian
+	Kirk Abbott
+        Lee Jun-Sang
+	Lionel Seinturier
+	Luciano Garcia-Banuelos	
+	Marc-Olivier Killijian
+	Maurizio Mazza
+	Olivier Jautzy
+	PhiHo Hoang
+	Schulz Arnaud
+	Shiro Kawai
+	Stanislav Chachkov
+	Teruo Koyanagi
+	Thorsten Sturm
+	Uwe Assmann
+	Walter Cazzola

@@ -1,0 +1,17 @@
+/*
+ * PointUser.oj
+ */
+package examples.capsule;
+
+
+public class PointUser
+{
+
+    public static void main( String[] args ) {
+	Point p = new Point( 1, 2 );
+	p.name = "MyFavorite";
+	int x = p.x + 1;
+	p.y = x * 2 + p.y;
+    }
+
+}

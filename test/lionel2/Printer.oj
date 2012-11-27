@@ -1,0 +1,18 @@
+package lionel2;
+
+import openjava.mop.*;
+import openjava.ptree.*;
+
+public class Printer instantiates Metaclass extends OJClass {
+	public void translateDefinition() throws MOPException {
+		System.out.println("translateDefinition() of " + getName());
+	}
+
+	public Expression expandAllocation(
+		Environment env,
+		AllocationExpression expr) {
+		System.out.println(
+			"expandAllocation() of " + getName() + " for " + expr.toString());
+		return expr;
+	}
+}

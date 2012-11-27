@@ -1,0 +1,64 @@
+/*
+ * AutoImplementerClass.oj
+ *
+ * Apr 29, 1999, by Michiaki Tatsubori
+ * Feb 2, 1999, by Michiaki Tatsubori
+ */
+package examples.autoimp;
+
+
+import openjava.mop.*;
+import openjava.ptree.*;
+import openjava.syntax.*;
+
+
+/**
+ * The metaclass <code>AutoImprementerClass</code> provides classes
+ * with a facility automatically implementing null methods for
+ * not implemented methods.
+ * <p>
+ *
+ * @author   Michiaki Tatsubori
+ * @version  1.0
+ * @see openjava.mop.OJClass#translateDefinition()
+ * @see openjava.mop.OJClass#isRegisteredModifier()
+ */
+public class AutoImplementerClass instantiates Metaclass extends OJClass
+{
+    public void translateDefinition() throws MOPException {
+        OJMethod[] methods = getInheritedMethods();
+        for (int i = 0; i < methods.length; ++i) {
+            if (! methods[i].getModifiers().isAbstract()
+                || hasDeclaredMethod( methods[i] ))  continue;
+            addMethod( makeNullMethod( methods[i] ) );
+        }
+    }
+
+    private boolean hasDeclaredMethod( OJMethod m ) {
+	try {
+	    getDeclaredMethod( m.getName(), m.getParameterTypes() );
+	    return true;
+	} catch ( NoSuchMemberException e ) {
+	    return false;
+	}
+    }
+
+    private OJMethod makeNullMethod( OJMethod m ) throws MOPException {
+        /* generates a new method without body */
+        OJMethod result = new OJMethod( this,
+            m.getModifiers().remove( OJModifier.ABSTRACT ),
+            m.getReturnType(), m.getName(), m.getParameterTypes(),
+            m.getExceptionTypes(), null
+            );
+        /* generates a return statement */
+        StatementList body = new StatementList();
+        if (m.getReturnType() == OJSystem.VOID) {
+            body.add( new ReturnStatement() );
+        } else {
+            body.add( new ReturnStatement( Literal.constantNull() ) );
+        }
+        result.setBody( body );
+        return result;
+    }
+
+}

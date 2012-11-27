@@ -1,0 +1,37 @@
+/*
+ * CopiedClass.oj
+ *
+ * @author   Michiaki Tatsubori
+ * @see      java.lang.Object
+ *
+ * COPYRIGHT 1999 by Michiaki Tatsubori, ALL RIGHTS RESERVED.
+ */
+package examples.copy;
+
+
+import openjava.mop.*;
+import openjava.ptree.*;
+import openjava.syntax.*;
+import openjava.ptree.util.TypeNameQualifier;
+
+
+public class CopiedClass instantiates Metaclass extends OJClass
+{
+    /* overrides for translation */
+    public convenient void translateDefinition() throws MOPException {
+	String newqname = getName() + "Shadow";
+	OJClass shadow = makeCopy( newqname );
+	/***
+	ClassDeclaration org = getSourceCode();
+	ClassDeclaration copy = (ClassDeclaration) org.makeRecursiveCopy();
+	String pack = Environment.toPackageName( newqname );
+	String sname = Environment.toSimpleName( newqname );
+	copy.setName( sname );
+	copy.accept( new TypeNameQualifier( getEnvironment(), sname ) );
+	FileEnvironment env = new FileEnvironment( OJSystem.env, pack, sname );
+	OJClass shadow = new OJClass( env, null, copy );
+	***/
+	OJSystem.addNewClass( shadow );
+    }
+
+}

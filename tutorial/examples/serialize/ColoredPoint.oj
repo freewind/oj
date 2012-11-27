@@ -1,0 +1,28 @@
+package examples.serialize;
+
+import java.io.*;
+
+public class ColoredPoint
+{
+	public Color color = new Color((byte) 0, (byte) 0, (byte) 0);
+	public Point point = new Point();
+}
+
+/*
+public class ColoredPoint implements Marshalable
+{
+	public Color color = new Color((byte) 1, (byte) 3, (byte) 5);
+	public Point point = new Point();
+
+	public void writeObject(ObjectOut os) throws IOException {
+		os.writeUTF("ColoredPoint");
+		os.writeObject(color);
+		os.writeObject(point);
+	}
+
+	public void readObject(ObjectIn is) throws IOException {
+		color = (Color) is.readObject();
+		point = (Point) is.readObject();
+	}
+}
+*/

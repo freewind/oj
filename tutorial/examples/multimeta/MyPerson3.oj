@@ -1,0 +1,14 @@
+package examples.multimeta;
+
+
+import examples.verbose.VerboseClass;
+
+
+public class MyPerson3 instantiates CombinedClass
+    extends Object implements Runnable
+    obeys VerboseClass, VerboseClass, VerboseClass, VerboseClass
+{
+    public String name;
+    public int age;
+    public void run() {}
+}

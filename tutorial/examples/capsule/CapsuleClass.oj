@@ -1,0 +1,130 @@
+/*
+ * CapsuleClass.oj
+ *
+ * Apr 23, 1999 by Michiaki Tatsubori
+ */
+package examples.capsule;
+
+
+import java.lang.Object;
+import openjava.mop.*;
+import openjava.ptree.*;
+import openjava.syntax.*;
+
+
+/**
+ * The class <code>CapsuleClass</code> is a metaclass which
+ * hides all the fields in the class and provides reader and writer
+ * methods corresponding to each field.  Furthermore, accesses
+ * to fields of the class is to be replaced with these methods.
+ */
+public class CapsuleClass instantiates Metaclass extends OJClass
+{
+    /** Overrides to translate definition */
+    public void translateDefinition() throws MOPException {
+        /* Detect public fields in superclass */
+        OJField[] inherited_flds = getSuperclass().getFields();
+	if (inherited_flds.length > 0) {
+	    System.err.println( "WARNING: Leak Possibilities" );
+	    for (int i = 0; i < inherited_flds.length; ++i)
+	        System.err.println( inherited_flds[i].toString() );
+	}
+
+	/* Get all declared fields and hide it */
+	OJField[] fields = getDeclaredFields();
+	for (int i = 0; i < fields.length; ++i) {
+	    OJModifier modif = fields[i].getModifiers();
+	    if (! modif.isPrivate())  hideField( fields[i] );
+	}
+    }
+
+    private void hideField( OJField field ) throws MOPException {
+        System.err.println( "Hiding a field : " + field.toString() );
+	generateReaderMethod( field );
+	generateWriterMethod( field );
+	field.setModifiers( field.getModifiers().setPrivate() );
+    }
+
+    private void generateReaderMethod( OJField field ) throws MOPException {
+        StatementList body = makeStatementList(
+	    "return " + field.getName() + ";"
+	    );
+	OJMethod reader = new OJMethod( this,
+	    field.getModifiers(), field.getType(),
+	    fieldReaderName( field.getName() ),
+	    (OJClass[]) null, null, body
+	    );
+	addMethod( reader );
+    }
+
+    private void generateWriterMethod( OJField field ) throws MOPException {
+	OJMethod writer = new OJMethod( this,
+	    field.getModifiers(), field.getType(),
+	    fieldWriterName( field.getName() ),
+	    new OJClass[]{ field.getType() }, null, null
+	    );
+	String param = writer.getParameters()[0];
+        StatementList body = makeStatementList( writer.getEnvironment(),
+	    "return " + field.getName() + "=" + param + ";"
+	    );
+	writer.setBody( body );
+	addMethod( writer );
+    }
+
+    private static final String fieldReaderName( String name ) {
+        return "read_" + name;
+    }
+
+    private static final String fieldWriterName( String name ) {
+        return "write_" + name;
+    }
+
+    /* overrides */
+
+    /** Allows references to private fields */
+    public OJField resolveException( NoSuchMemberException e, String name )
+        throws NoSuchMemberException
+    { 
+        try {
+	    return getDeclaredField( name );
+        } catch ( NoSuchMemberException e2 ) {}
+        return super.resolveException( e, name );
+    }
+
+    /** Overrides to expand fields to be read */
+    public Expression expandFieldRead(
+        Environment  env,
+        FieldAccess  expr )
+    {
+        Expression ref = expr.getReferenceExpr();
+	String name = fieldReaderName( expr.getName() );
+        Expression result;
+	if (ref != null) {
+	    result = new MethodCall( ref, name, null );
+	} else {
+	    result = new MethodCall( expr.getReferenceType(), name, null );
+	}
+        System.err.println( "Patch FR : " + expr + "\tto\t" + result );
+	return result;
+    }
+
+    /** Overrides to expand fields to be written */
+    public Expression expandFieldWrite(
+        Environment           env,
+        AssignmentExpression  expr )
+    {
+	FieldAccess fldac = (FieldAccess) expr.getLeft();
+	ExpressionList args = new ExpressionList( expr.getRight() );
+        Expression ref = fldac.getReferenceExpr();
+	String name = fieldWriterName( fldac.getName() );
+        Expression result;
+	if (ref != null) {
+	    result = new MethodCall( ref, name, args );
+	} else {
+	    result = new MethodCall( fldac.getReferenceType(), name, args );
+	}
+        System.err.println( "Patch FW : " + expr + "\tto\t" + result );
+	return result;
+    }
+
+}

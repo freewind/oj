@@ -1,0 +1,15 @@
+package smyth;
+
+public distributed class Test instantiates MDistributed {
+	private int balance = 100;
+
+	public Test() {
+		super();
+	}
+
+	public int f() {
+		return 0;
+	}
+	public void g() {
+	}
+}

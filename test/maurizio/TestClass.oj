@@ -1,0 +1,15 @@
+import maurizio;
+
+import openjava.mop.*;
+import openjava.ptree.*;
+import openjava.syntax.*;
+import openjava.ptree.util.VariableBinder;
+
+public class TestClass instantiates Metaclass extends OJClass {
+	public TypeName expandTypeName(Environment env, TypeName type) {
+		System.out.println("I'm into expandTypeName");
+		TypeName result = new TypeName("java.lang.String", 0);
+		return super.expandTypeName(env, result);
+	}
+
+}

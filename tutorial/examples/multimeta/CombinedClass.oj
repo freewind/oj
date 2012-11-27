@@ -1,0 +1,397 @@
+/*
+ * CombinedClass.oj
+ *
+ * Oct 24, 2000  by Michiaki Tatsubori
+ */
+package examples.multimeta;
+
+
+import openjava.mop.*;
+import openjava.ptree.*;
+import openjava.syntax.*;
+import java.util.*;
+import java.lang.reflect.*;
+
+
+/**
+ * The metaclass <code>CombinedClass</code> provides a class to be
+ * bound to more than one metaclass.
+ * <p>
+ * An usage are:
+ * <pre>
+ * class MyPerson instantiates CombinedClass
+ *     extends Object implements Runnable
+ *     obeys PersistableClass, TransactionableClass
+ * {
+ *     ...
+ * }
+ * </pre>
+ * <p>
+ *
+ * @author   Michiaki Tatsubori
+ * @version  1.0
+ * @see java.lang.OJClass
+ */
+public class CombinedClass instantiates Metaclass extends OJClass
+{
+    private static final String KEYWORD_OBEYS = "obeys";
+
+    /**
+     * Composing class metaobjects.
+     */
+    protected OJClass[] substances = null;
+
+    public CombinedClass(Class javaclazz, MetaInfo metainfo) {
+        super(javaclazz, metainfo);
+	initializeSubstantialMetaclasses(javaclazz, metainfo);
+    }
+
+    /**
+     * Initializes the substantial class metaobjects, which were specified
+     * by the "obeys" phrase in the class declaration.
+     */
+    private void initializeSubstantialMetaclasses(Class javaclazz,
+						  MetaInfo metainfo) {
+	int cnum = 0;
+	while (metainfo.get(KEYWORD_OBEYS + cnum) != null)  ++cnum;
+	substances = new OJClass[cnum];
+	for (int i = 0; i < substances.length; ++i) {
+	    String cname = metainfo.get(KEYWORD_OBEYS + i);
+	    /* Do not use OJClass.forClass() here.  It would changes
+	     * the bind of the metaclass to the class name.
+	     * The substantial class metaobjects must be created directly.
+	     */
+	    try {
+		Class clazz = Class.forName(cname);
+		Constructor cons = clazz.getConstructor(new Class[] {
+		    Class.class, MetaInfo.class });
+		substances[i] = (OJClass) cons.newInstance(new Object[] {
+		    javaclazz, metainfo});
+	    } catch (Exception ex) {
+		throw new Error(ex.toString());
+	    }
+	}
+    }
+
+    public CombinedClass(Environment env, OJClass declaring,
+			 ClassDeclaration cdecl) {
+        super(env, declaring, cdecl);
+    }
+
+    /**
+     * Translates the declaration part of base classes.
+     */
+    public void translateDefinition() throws MOPException {
+	initializeSubstantialMetaclasses();
+
+	System.out.println("The class " + getName() +
+			   " obeys the specified substantial metaclass/es :");
+	for (int i = 0; i < substances.length; ++i) {
+	    System.out.println(substances[i].getClass().getName());
+	    substances[i].translateDefinition();
+	}
+    }
+
+    /**
+     * Initializes the substantial class metaobjects, which are specified
+     * by the "obeys" phrase.
+     */
+    private void initializeSubstantialMetaclasses() throws MOPException {
+	String[] metaclazz = getSubstantialMetaclasses();
+
+	for (int i = 0; i < metaclazz.length; ++i) {
+	    putMetaInfo(KEYWORD_OBEYS + i, metaclazz[i]);
+	}
+
+	substances = new OJClass[metaclazz.length];
+	for (int i = 0; i < substances.length; ++i) {
+	    String cname = metaclazz[i];
+	    /* Do not use OJClass.forParseTree() here.  It would changes
+	     * the bind of the metaclass to the class name
+	     * The substantial class metaobjects must be created directly.
+	     */
+	    try {
+		Class clazz = Class.forName(cname);
+		Constructor cons = clazz.getConstructor(new Class[] {
+		    Environment.class, OJClass.class,
+		    ClassDeclaration.class });
+		Environment env = getEnvironment();
+		OJClass declaring = getDeclaringClass();
+		ClassDeclaration cdecl = getSourceCode();
+		substances[i] = (OJClass) cons.newInstance(new Object[] {
+		    env, declaring, cdecl});
+	    } catch (Exception ex) {
+		throw new Error(ex.toString());
+	    }
+	}
+    }
+
+    private String[] getSubstantialMetaclasses() throws MOPException {
+        ObjectList suffix = (ObjectList) getSuffix(KEYWORD_OBEYS);
+	String[] result = new String[suffix.size()];
+	for (int i = 0; i < result.length; ++i) {
+	    result[i] = suffix.get(i).toString();
+	}
+	return result;
+    }
+
+    private static Vector modifVec = new Vector();
+    private static Hashtable keyTable = new Hashtable();
+
+    /**
+     * Metaclasses of the parsing class declaration.
+     */
+    private static Class[] metaclasses = null;
+
+    /* Extends syntax for custom modifiers */
+    public static boolean isRegisteredModifier(String keyword) {
+	if (metaclasses == null) {
+	    System.err.println("No consultant for modifiers!");
+	    return false;
+	}
+
+	for (int i = 0; i < metaclasses.length; ++i) {
+	    Class c = metaclasses[i];
+	    System.err.println("Consulting " + c +
+			       " for the syntax of modifiers");
+	    try {
+		Method m = c.getMethod("isRegisteredModifier",
+				       new Class[] {String.class});
+		Boolean result
+		    = (Boolean) m.invoke(null, new Object[] {keyword});
+		if (result.booleanValue() == true)  return true;
+	    } catch (Exception ex) {
+		System.err.println(ex);
+	    }
+	}
+
+	return false;
+    }
+
+    /* Extends syntax for custom suffix phrases */
+    public static boolean isRegisteredKeyword(String keyword) {
+        if (keyword.equals(KEYWORD_OBEYS))  return true;
+
+	if (metaclasses == null) {
+	    System.err.println("No consultant for suffix phrases!");
+	    return false;
+	}
+
+	for (int i = 0; i < metaclasses.length; ++i) {
+	    Class c = metaclasses[i];
+	    System.err.println("Consulting " + c +
+			       " for the syntax of suffix phrases");
+	    try {
+		Method m = c.getMethod("isRegisteredKeyword",
+				       new Class[] {String.class});
+		Boolean result
+		    = (Boolean) m.invoke(null, new Object[] {keyword});
+		if (result.booleanValue() == true)  return true;
+	    } catch (Exception ex) {
+		System.err.println(ex);
+	    }
+	}
+
+	return false;
+    }
+
+    /* Extends syntax for custom suffix phrases */
+    public static SyntaxRule getDeclSuffixRule(String keyword) {
+        if (keyword.equals(KEYWORD_OBEYS)) {
+	    /* The returned rule object is hacked to call back and register
+	     * type names them.
+	     */
+	    System.err.println("Consultants dismissed");
+	    metaclasses = null;
+	    return new HackedTypeNameListRule(new TypeNameParsingListener() {
+		public void addTypeName(String tname) {
+		    System.err.println("Found a consultant " + tname);
+
+		    Class[] old = metaclasses;
+		    if (old == null) {
+			metaclasses = new Class[1];
+		    } else {
+			metaclasses = new Class[old.length + 1];
+			for (int i = 0; i < old.length; ++i) {
+			    metaclasses[i] = old[i];
+			}
+		    }
+		    try {
+			Class mc = Class.forName(tname);
+			metaclasses[metaclasses.length - 1] = mc;
+		    } catch (ClassNotFoundException ex) {
+			System.err.println(ex);
+			metaclasses = old;
+		    }
+		}
+	    });
+	}
+	
+	if (metaclasses == null) {
+	    System.err.println("No consultant for suffix phrases!");
+	    return null;
+	}
+
+	for (int i = 0; i < metaclasses.length; ++i) {
+	    Class c = metaclasses[i];
+	    System.err.println("Consulting " + c +
+			       " for the syntax of suffix phrases");
+	    try {
+		Method m = c.getMethod("getDeclSuffixRule",
+				       new Class[] {String.class});
+		SyntaxRule result
+		    = (SyntaxRule) m.invoke(null, new Object[] {keyword});
+		if (result != null)  return result;
+	    } catch (Exception ex) {
+		System.err.println(ex);
+	    }
+	}
+	
+        return null;
+    }
+
+    /* -- Caller-side expansions -- */
+
+    public Expression expandFieldRead(Environment env, FieldAccess expr) {
+	Expression result;
+	for (int i = 0; i < substances.length; ++i) {
+	    result = substances[i].expandFieldRead(env, expr);
+	    if (result != expr)  return result;
+	}
+        return super.expandFieldRead(env, expr);
+    }
+
+    public Expression expandFieldWrite(Environment env,
+				       AssignmentExpression expr) {
+	Expression result;
+	for (int i = 0; i < substances.length; ++i) {
+	    result = substances[i].expandFieldWrite(env, expr);
+	    if (result != expr)  return result;
+	}
+        return super.expandFieldWrite(env, expr);
+    }
+
+    public Expression expandMethodCall(Environment env,
+				       MethodCall expr) {
+	Expression result;
+	for (int i = 0; i < substances.length; ++i) {
+	    result = substances[i].expandMethodCall(env, expr);
+	    if (result != expr)  return result;
+	}
+        return super.expandMethodCall(env, expr);
+    }
+
+    public TypeName expandTypeName(Environment env, TypeName tname) {
+	TypeName result;
+	for (int i = 0; i < substances.length; ++i) {
+	    result = substances[i].expandTypeName(env, tname);
+	    if (result != tname)  return result;
+	}
+        return super.expandTypeName(env, tname);
+    }
+
+    public Expression expandAllocation(Environment env,
+				       AllocationExpression expr) {
+	Expression result;
+	for (int i = 0; i < substances.length; ++i) {
+	    result = substances[i].expandAllocation(env, expr);
+	    if (result != expr)  return result;
+	}
+        return super.expandAllocation(env, expr);
+    }
+
+    public Expression expandArrayAllocation(Environment env,
+					    ArrayAllocationExpression expr) {
+	Expression result;
+	for (int i = 0; i < substances.length; ++i) {
+	    result = substances[i].expandArrayAllocation(env, expr);
+	    if (result != expr)  return result;
+	}
+        return super.expandArrayAllocation(env, expr);
+    }
+
+    public Expression expandArrayAccess(Environment env, ArrayAccess expr) {
+	Expression result;
+	for (int i = 0; i < substances.length; ++i) {
+	    result = substances[i].expandArrayAccess(env, expr);
+	    if (result != expr)  return result;
+	}
+        return super.expandArrayAccess(env, expr);
+    }
+
+    public Expression expandAssignmentExpression(Environment env,
+						 AssignmentExpression expr) {
+	Expression result;
+	for (int i = 0; i < substances.length; ++i) {
+	    result = substances[i].expandAssignmentExpression(env, expr);
+	    if (result != expr)  return result;
+	}
+        return super.expandAssignmentExpression(env, expr);
+    }
+
+    public Expression expandExpression(Environment env,
+				       Expression expr) {
+	Expression result;
+	for (int i = 0; i < substances.length; ++i) {
+	    result = substances[i].expandExpression(env, expr);
+	    if (result != expr)  return result;
+	}
+        return super.expandExpression(env, expr);
+    }
+
+    public Statement expandVariableDeclaration(Environment env,
+					       VariableDeclaration decl) {
+	Statement result;
+	for (int i = 0; i < substances.length; ++i) {
+	    result = substances[i].expandVariableDeclaration(env, decl);
+	    if (result != decl)  return result;
+	}
+        return super.expandVariableDeclaration(env, decl);
+    }
+
+    public Expression expandCastExpression(Environment env,
+					   CastExpression expr)	{
+	Expression result;
+	for (int i = 0; i < substances.length; ++i) {
+	    result = substances[i].expandCastExpression(env, expr);
+	    if (result != expr)  return result;
+	}
+        return super.expandCastExpression(env, expr);
+    }
+
+    public Expression expandCastedExpression(Environment env,
+					     CastExpression expr) {
+	Expression result;
+	for (int i = 0; i < substances.length; ++i) {
+	    result = substances[i].expandCastedExpression(env, expr);
+	    if (result != expr)  return result;
+	}
+        return super.expandCastedExpression(env, expr);
+    }
+
+    /* -- Error handlings -- */
+
+    public OJField resolveException(NoSuchMemberException nmex, String name)
+        throws NoSuchMemberException
+    {
+	for (int i = 0; i < substances.length; ++i) {
+	    try {
+		return substances[i].resolveException(nmex, name);
+	    } catch (NoSuchMemberException ex) {}
+	}
+        return super.resolveException(nmex, name);
+    }
+
+    public OJMethod resolveException( NoSuchMemberException nmex,
+                                 String name, OJClass[] argtypes)
+        throws NoSuchMemberException
+    {
+	for (int i = 0; i < substances.length; ++i) {
+	    try {
+		return substances[i].resolveException(nmex, name, argtypes);
+	    } catch (NoSuchMemberException ex) {}
+	}
+        return super.resolveException(nmex, name, argtypes);
+    }
+
+}

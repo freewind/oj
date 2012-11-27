@@ -1,0 +1,11 @@
+import maurizio;
+
+public class TestUser {
+	public static void main(String[] args) {
+		Test t = new Test();
+		Object o = t;
+		Test t2 = (Test) o;
+		System.out.println(Test.class);
+		System.out.println(t);
+	}
+}

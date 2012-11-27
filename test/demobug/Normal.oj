@@ -1,0 +1,96 @@
+/*
+ * Normal.java
+ *
+ * comments here.
+ *
+ * @author   Michiaki Tatsubori
+ * @version  %VERSION% %DATE%
+ * @see      java.lang.Object
+ *
+ * COPYRIGHT 1998 by Michiaki Tatsubori, ALL RIGHTS RESERVED.
+ */
+package demobug;
+
+import java.awt.Panel;
+import java.util.*;
+import java.io.PrintStream;
+
+/**
+ * The class <code>Normal</code>
+ * <p>
+ * For example
+ * <pre>
+ * </pre>
+ * <p>
+ *
+ * @author   Michiaki Tatsubori
+ * @version  1.0
+ * @since    %SOFTWARE% 1.0
+ * @see java.lang.Object
+ */
+public class Normal extends Panel {
+	private int iii = 0;
+
+	private Normal n = null;
+
+	private String str;
+
+	protected Normal(String str) {
+		super();
+		this.str = str;
+		n = null;
+	}
+
+	/**
+	 * @param  
+	 * @return  
+	 * @exception  
+	 * @see java.lang.Object
+	 */
+	public static void main(String[] argv) {
+		PrintStream out = System.out;
+		PrintStream error = java.lang.System.err;
+		out.println("Hello" + " " + "World");
+		Normal n = new Normal(null);
+		java.lang.System.err.println("done");
+
+		for (int index = 0; index < argv.length; ++index) {
+			System.out.println(index);
+		}
+	}
+
+	public void hoge() {
+		Local l = new Local();
+		System.out.println(l.foo);
+		System.out.println(l.bar.str);
+	}
+
+	public int foo() {
+		int[] ia = { 0, 0x0, 0x82094000 };
+		return JJCalls.gen;
+	}
+
+	public String toString() {
+		if (n == null)
+			return str;
+		return str + n;
+	}
+
+	static final class JJCalls {
+		static int gen = 0;
+		JJCalls next;
+	}
+}
+
+class Local {
+	Local() {
+	}
+	String foo = null;
+	Local2 bar = new Local2();
+}
+
+class Local2 {
+	Local2() {
+	}
+	String str = "" + "TEST";
+}

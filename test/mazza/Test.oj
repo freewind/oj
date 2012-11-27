@@ -1,0 +1,6 @@
+import mazza;
+
+public class Test instantiates TestClass {
+	public void foo() {
+	}
+}

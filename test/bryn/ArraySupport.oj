@@ -1,0 +1,62 @@
+package bryn;
+
+import openjava.mop.*;
+import openjava.ptree.*;
+import openjava.syntax.*;
+import openjava.ptree.util.VariableBinder;
+
+public class ArraySupport instantiates Metaclass extends OJClass {
+	/* overrides for translation */
+	public void translateDefinition() throws MOPException {
+		OJMethod[] methods = getDeclaredMethods();
+		for (int i = 0; i < methods.length; ++i) {
+			ArrayAccessReplace.run(methods[i]);
+		}
+	}
+
+	convenient public static boolean needed(OJClass type) {
+		return (type == java.util.ArrayList.class);
+	}
+
+}
+
+class ArrayAccessReplace extends VariableBinder {
+	public static void run(OJMethod method) throws MOPException {
+		ArrayAccessReplace replacer =
+			new ArrayAccessReplace(method.getEnvironment());
+		try {
+			method.getBody().accept(replacer);
+		} catch (ParseTreeException e) {
+			throw new MOPException(e);
+		}
+	}
+
+	public ArrayAccessReplace(Environment env) {
+		super(new ClosedEnvironment(env));
+	}
+
+	public Expression evaluateUp(ArrayAccess org_expr)
+		throws ParseTreeException {
+		/* "list" of "list[0]" */
+		Expression refexpr = org_expr.getReferenceExpr();
+
+		/* this is only for java.util.ArrayList instances */
+		try {
+			OJClass reftype = refexpr.getType(getEnvironment());
+			if (!ArraySupport.needed(reftype))
+				return org_expr;
+		} catch (Exception ex) {
+			throw new ParseTreeException(ex);
+		}
+
+		/* Creates arguments for method call */
+		ExpressionList args = new ExpressionList(org_expr.getIndexExpr());
+
+		/* returns "list.get(0)" from "list[0]" */
+		MethodCall result = new MethodCall(refexpr, "get", args);
+
+		System.err.println(org_expr + " -> " + result);
+		return result;
+	}
+
+}

@@ -1,0 +1,57 @@
+/*
+ * FaceProvidedClass.oj
+ *
+ * @author   Michiaki Tatsubori
+ * @see      java.lang.Object
+ *
+ * COPYRIGHT 1999 by Michiaki Tatsubori, ALL RIGHTS RESERVED.
+ */
+package examples.facemake;
+
+
+import openjava.mop.*;
+import openjava.ptree.*;
+import openjava.syntax.*;
+
+
+public class FaceProvidedClass instantiates Metaclass extends OJClass
+{
+    /* overrides for translation */
+    public convenient void translateDefinition() throws MOPException {
+	OJMethod[] methods = getMethods();
+	String fname = getName() + "Face";
+	FaceProvidedClass face = createEmptyInterface(fname);
+	OJSystem.addNewClass(face);
+	for (int i = 0; i < methods.length; ++i) {
+	    OJMethod fmtd = OJMethod.makePrototype(methods[i]);
+	    OJModifier modif = fmtd.getModifiers();
+	    if (modif.isStatic())  continue;  /* non-static only */
+	    if (isMethodOfObject(methods[i]))  continue;
+	    fmtd.setModifiers( OJModifier.PUBLIC );
+	    face.addMethod(fmtd);
+	}
+	addInterface(face);
+    }
+
+    public static FaceProvidedClass createEmptyInterface(String qname) {
+	String pack = Environment.toPackageName(qname);
+	String sname = Environment.toSimpleName(qname);
+	ClassDeclaration cd
+	    = new ClassDeclaration(new ModifierList(ModifierList.PUBLIC),
+				   sname, new TypeName[0], new TypeName[0],
+				   new MemberDeclarationList(), false );
+       FileEnvironment env = new FileEnvironment(OJSystem.env, pack, sname);
+	return new FaceProvidedClass(env, null, cd);
+    }
+
+    public static boolean isMethodOfObject(OJMethod m) {
+	try {
+	    OJClass clazz = OJSystem.OBJECT;
+	    clazz.getMethod(m.getName(), m.getParameterTypes(), clazz);
+	    return true;
+	} catch (NoSuchMemberException ex) {
+	    return false;
+	}
+    }
+
+}

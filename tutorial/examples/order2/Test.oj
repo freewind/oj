@@ -1,0 +1,11 @@
+package examples.order2;
+
+public class Test instantiates Printer extends E
+{
+}
+
+class B instantiates Printer extends A {}
+class E instantiates Printer extends D {}
+class C instantiates Printer extends B {}
+class D instantiates Printer extends C {}
+class A extends Object {}

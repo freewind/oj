@@ -1,0 +1,4 @@
+import luciano;
+
+public class Test instantiates AutoConstructorClass {
+}

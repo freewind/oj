@@ -1,0 +1,14 @@
+import maurizio2;
+
+public class TestUser {
+	static short s = 0;
+	static short as[] = null;
+	static int o = 0;
+	static int os[] = null;
+
+	public static void main(String[] args) {
+		Test t = new Test();
+		t.foo(s, o);
+		t.foo(as, os);
+	}
+}

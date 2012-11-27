@@ -1,0 +1,117 @@
+package dardia;
+
+import java.lang.reflect.Modifier;
+
+import openjava.mop.CannotAlterException;
+import openjava.mop.Environment;
+import openjava.mop.FileEnvironment;
+import openjava.mop.MOPException;
+import openjava.mop.Metaclass;
+import openjava.mop.MetaInfo;
+import openjava.mop.OJClass;
+import openjava.mop.OJConstructor;
+import openjava.mop.OJField;
+import openjava.mop.OJMethod;
+import openjava.mop.OJModifier;
+import openjava.mop.OJSystem;
+import openjava.ptree.ClassDeclaration;
+import openjava.ptree.MemberDeclarationList;
+import openjava.ptree.ModifierList;
+import openjava.ptree.ParseTreeException;
+import openjava.ptree.TypeName;
+
+public class InterImpl instantiates Metaclass extends openjava.mop.OJClass {
+
+    public void translateDefinition() throws MOPException {
+        EditableClass newClass =
+            new EditableClass(makeCopy(getName() + "Impl"));
+        OJSystem.addNewClass(newClass);
+
+        beInterface();
+        removeFieldsAndConstructors();
+        turnMethodsEmpty();
+
+        newClass.addInterface(this);
+    }
+
+    private void beInterface() throws MOPException {
+        ClassDeclaration orgDecl = getSourceCode();
+        ModifierList modifs = new ModifierList(Modifier.PUBLIC);
+        String name = orgDecl.getName();
+        TypeName[] bases = new TypeName[0];
+        TypeName[] faces = new TypeName[0];
+        MemberDeclarationList classBody = orgDecl.getBody();
+        ClassDeclaration newDecl =
+            new ClassDeclaration(modifs, name, bases, faces, classBody, false);
+        try {
+            orgDecl.replace(newDecl);
+        } catch (ParseTreeException e) {
+            throw new MOPException(e.toString());
+        }
+    }
+
+    private void removeFieldsAndConstructors() throws MOPException {
+        OJField[] f = getDeclaredFields();
+        for (int i = 0; i < f.length; ++i) {
+            removeField(f[i]);
+        }
+        OJConstructor[] cons = getDeclaredConstructors();
+        for (int i = 0; i < cons.length; ++i) {
+            removeConstructor(cons[i]);
+        }
+    }
+
+    private void turnMethodsEmpty() throws MOPException {
+        OJMethod[] m = getDeclaredMethods();
+        for (int i = 0; i < m.length; ++i) {
+            OJModifier modif = m[i].getModifiers();
+            if (!modif.isPublic() || modif.isStatic()) {
+                removeMethod(m[i]);
+            }
+            m[i].setModifiers(OJModifier.forModifier(OJModifier.PUBLIC));
+            m[i].setBody(null);
+        }
+    }
+
+}
+
+class EditableClass extends OJClass {
+
+    public EditableClass(OJClass original)
+        throws CannotAlterException {
+        super(
+            new FileEnvironment(
+                OJSystem.env,
+                original.getPackage(),
+                original.getSimpleName()),
+            original.getDeclaringClass(),
+            original.getSourceCode());
+    }
+
+    public OJClass addClass(OJClass clazz)
+        throws CannotAlterException {
+        return super.addClass(clazz);
+    }
+
+    public OJConstructor addConstructor(
+        OJConstructor constr)
+        throws CannotAlterException {
+        return super.addConstructor(constr);
+    }
+
+    public OJField addField(OJField field)
+        throws CannotAlterException {
+        return super.addField(field);
+    }
+
+    public void addInterface(OJClass clazz)
+        throws CannotAlterException {
+        super.addInterface(clazz);
+    }
+
+    public OJMethod addMethod(OJMethod method)
+        throws CannotAlterException {
+        return super.addMethod(method);
+    }
+
+}

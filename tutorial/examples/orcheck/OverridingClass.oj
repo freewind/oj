@@ -1,0 +1,62 @@
+/*
+ * OverridingClass.oj
+ *
+ * Apr 29, 1999, by Michiaki Tatsubori
+ * Feb 2, 1999, by Michiaki Tatsubori
+ */
+package examples.orcheck;
+
+
+import openjava.mop.*;
+import openjava.ptree.*;
+import openjava.syntax.*;
+
+
+/**
+ * The metaclass <code>OverloadCheckerClass</code> provides classes
+ * with a facility of checking if a method overrides the method of
+ * its superclass.
+ * <p>
+ * The class <code>MyObject</code> following is a use-case of
+ * this metaclass:
+ * <pre>
+ * class MyObject instantiates OverridingClass {
+ *     public overriding tostring( Object[] arg ) { .. }
+ * }
+ * </pre>
+ * Here, you intend to override the method <tt>toString()</tt> surely.
+ * Compilation of this class shows warning that you do not 
+ * override any method.  This can help you to become aware of potential
+ * bugs.
+ *
+ * @author   Michiaki Tatsubori
+ * @version  1.0
+ * @see openjava.mop.OJClass#translateDefinition()
+ * @see openjava.mop.OJClass#isRegisteredModifier()
+ */
+public class OverridingClass instantiates Metaclass extends OJClass
+{
+    private static final String OVERRIDING = "overriding";
+
+    public void translateDefinition() throws MOPException {
+        OJMethod[] methods = getDeclaredMethods();
+	for (int i = 0; i < methods.length; ++i) {
+	    if (! methods[i].getModifiers().has( OVERRIDING ))  continue;
+	    OJClass[] paramtypes = methods[i].getParameterTypes();
+	    String name = methods[i].getName();
+	    OJClass[] ptypes = methods[i].getParameterTypes();
+	    try {
+		getSuperclass().getMethod( name, ptypes, this );
+	    } catch (Exception e) {
+		System.err.println( "WARNING: " + methods[i] + " doesn't " +
+				    "override any method in superclasses." );
+	    }
+	}
+    }
+
+    public static boolean isRegisteredModifier( String keyword ) {
+	if (keyword.equals( OVERRIDING ))  return true;
+        return false;
+    }
+
+}

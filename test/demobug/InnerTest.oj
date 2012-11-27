@@ -1,0 +1,29 @@
+/*
+ * InterTest.java
+ *
+ * May 4, 1999 by Michiaki Tatsubori
+ */
+package demobug;
+
+import java.lang.System;
+
+public class InnerTest {
+	public JJCalls jj;
+
+	public static void main(String[] argv) {
+		/*
+		System.out.println( JJCalls.gen );
+		JJCalls dummy = new JJCalls();
+		JJCalls[] test = new JJCalls[53];
+		*/
+		JJCalls hoge = InnerTest.JJCalls.next;
+
+		//InnerTest u = new InnerTest();
+		//hoge = u.JJCalls.next;
+	}
+
+	static final class JJCalls {
+		static int gen = 0;
+		static JJCalls next;
+	}
+}

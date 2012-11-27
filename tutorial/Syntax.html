@@ -1,0 +1,171 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN"> 
+<html>
+
+
+<head>
+<title>OpenJava : Tutorial</title>
+<meta http-equiv="Keywords" content="java, openjava, reflection">
+</head>
+
+
+<body bgcolor="white"
+        text="#000000" link="#007fff" vlink="#006fdf" alink="#ff0000">
+
+
+<!---------------------------------------------------------------------->
+
+
+<center>
+
+<h1><font color="Blue">OpenJava Tutorial</font></h1>
+
+</center>
+
+
+<!---------------------------------------------------------------------->
+<hr width="100%">
+<!---------------------------------------------------------------------->
+
+
+<h2>6. <font color="blue">Callee-side Translation</font></h2>
+
+
+<p>In this section, an example of simple translation at <i>callee-side</i>
+is described.
+
+
+<h3>6.1. What the base-level program should look like</h3>
+
+<p>Most of example programs given in the text are ready to be executed by
+the OpenJava system and are similar in form to:
+
+<br><blockquote><pre><font color=darkblue>
+import java.util.*;
+public class StringCollection instantiates FreeArgsClass
+{
+    Vector contents = new Vector();
+    public generous void addAll( String[] args ) {
+        for (int i = 0; i < args.length; ++i)  contents.addElement( args[i] );
+    }
+}
+</font></pre></blockquote>
+
+<br><blockquote><pre><font color=darkblue>
+public class Test
+{
+    void test() {
+        StringCollection strs = new StringCollection();
+        strs.addAll( "one", "two", "three" );
+    }
+}
+</font></pre></blockquote>
+
+
+<h3>6.2. What the base-level program should be translated</h3>
+
+<p>Like following:
+<br><blockquote><pre><font color=darkblue>
+public class Test
+{
+    void test() {
+        StringCollection strs = new StringCollection();
+        strs.addAll( new String[]{ "one", "two", "three" } );
+    }
+}
+</font></pre></blockquote>
+
+
+<h3>6.3. Write a meta-level program</h3>
+
+<br><blockquote><pre><font color=darkblue>
+import openjava.mop.*;
+import openjava.ptree.*;
+import openjava.syntax.*;
+
+public class FreeArgsClass instantiates Metaclass extends OJClass
+{
+    private static final String GENEROUS = "generous";
+    /** Translates definition */
+
+    public void translateDefinition() throws MOPException {
+        OJMethod[] methods = getDeclaredMethods();
+        for (int i = 0; i < methods.length; ++i) {
+            if (! methods[i].getModifiers().has( GENEROUS ))  continue;
+            System.err.println( methods[i] );
+            OJClass[] paramtypes = methods[i].getParameterTypes();
+            if (paramtypes.length != 1 || ! paramtypes[0].isArray()) {
+                System.err.println( "illegal parameter, ignored." );
+                continue;
+            }
+            putMetaInfo( methods[i].getName(), paramtypes[0].getName() );
+        }
+    }
+
+    public OJMethod resolveException( NoSuchMemberException e,
+                                      String name, OJClass[] params )
+        throws NoSuchMemberException
+    {
+        try {
+            String argtypename = getMetaInfo( name );
+            if (argtypename != null) {
+                OJClass paramtype = OJClass.forName( argtypename );
+                return getMethod( name, new OJClass[]{ paramtype }, this );
+            }
+        } catch ( OJClassNotFoundException e2 ) {
+            System.err.println( e2 );
+        }
+        return super.resolveException( e, name, params );
+    }
+
+    /** Translates allocation parts */
+    public Expression expandMethodCall( Environment env, MethodCall expr ) {
+        String argtypename = getMetaInfo( expr.getName() );
+        if (argtypename == null)  return expr;
+        OJClass comptype;
+        try {
+            comptype = OJClass.forName( argtypename ).getComponentType();
+        } catch ( OJClassNotFoundException e ) {
+            System.err.println( e );
+            return expr;
+        }
+        ExpressionList dim = new ExpressionList( null );
+        ArrayInitializer ainit = new ArrayInitializer( expr.getArguments() );
+        ArrayAllocationExpression carrier
+          = new ArrayAllocationExpression( comptype, dim, ainit );
+        expr.setArguments( new ExpressionList( carrier ) );
+        return expr;
+    }
+
+    public static boolean isRegisteredModifier( String keyword ) {
+        if (keyword.equals( GENEROUS ))  return true;
+        return false;
+    }
+</font></pre></blockquote>
+
+
+<!---------------------------------------------------------------------->
+<hr width="100%">
+<!---------------------------------------------------------------------->
+
+
+<center>
+
+Please send any message to :
+<address>
+mich@acm.org
+</address><BR>
+
+</center>
+
+
+<font size=1>Copyright (C) 1999 by Michaki Tatsubori.</font><br>
+<font size=1>Java(TM) is a trademark of Sun Microsystems, Inc.</font>
+
+
+<!---------------------------------------------------------------------->
+
+
+</body>
+
+
+</html>

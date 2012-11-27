@@ -1,0 +1,98 @@
+<!--
+  Ant xml file for OpenJava 1.1
+
+ Aug 4, 2002 by Michiaki Tatsubori
+ 
+ $Id: build.xml,v 1.2 2003/02/19 02:55:02 tatsubori Exp $
+ 
+ JDK version 1.2.1-1.4
+ JavaCC version 1.0-1.1
+-->
+
+<project name="OpenJava_1.1" default="dist" basedir=".">
+
+  <!-- set site dependent properties for this build -->
+  <property name="javacc.home"  value="/usr/java/javacc"/>
+
+  <!-- set global properties for this build -->
+  <property name="src" value="src"/>
+  <property name="build" value="classes"/>
+  <property name="dist"  value="."/>
+  <property name="htdocs" value="htdocs"/>
+
+  <target name="init">
+    <!-- Create the time stamp -->
+    <tstamp/>
+    <!-- Create the build directory structure used by compile -->
+    <mkdir dir="${build}"/>
+  </target>
+
+  <path id="oj.build.path">
+    <pathelement path="${java.class.path}"/>
+    <pathelement location="${build}/"/>
+  </path>
+
+  <path id="oj.source.path">
+    <pathelement location="${src}/"/>
+  </path>
+
+  <target name="compile" depends="init,parser">
+    <!-- Compile the java code from ${src} into ${build} -->
+    <javac srcdir="${src}" destdir="${build}">
+      <classpath refid="oj.build.path"/>
+    </javac>
+  </target>
+
+  <property name="parser.dir"  value="${src}/openjava/tools/parser"/>
+
+  <target name="parser">
+    <!-- Create the time stamp -->
+    <tstamp/>
+    <!-- Produces Parser.java from Parser.jj -->
+    <javacc 
+        target="${parser.dir}/Parser.jj" 
+        javacchome="${javacc.home}" 
+        outputdirectory="${parser.dir}"
+        buildtokenmanager="true"
+        />
+  </target>
+
+  <target name="dist" depends="compile">
+    <!-- Put everything in ${build} into the openjava.jar file -->
+    <jar jarfile="${dist}/openjava.jar" basedir="${build}"/>
+  </target>
+
+  <target name="javadoc" depends="compile">
+    <mkdir dir="${htdocs}"/>
+    <javadoc
+        sourcepathref="oj.source.path"
+        destdir="${htdocs}"
+        classpathref="oj.build.path"
+        locale="en_US"
+        Protected="true"
+        Use="true"
+        windowtitle="OpenJava MOP API"
+        failonerror="true">
+      <packageset dir="${src}" defaultexcludes="yes">
+        <include name="openjava/**"/>
+        <exclude name="openjava/tools/**"/>
+      </packageset>
+      <doctitle><![CDATA[<h1>OpenJava MOP API</h1>]]></doctitle>
+      <bottom><![CDATA[<i>Copyright &#169; 1998-2003 Michiaki Tatsubori All Rights Reserved.</i>]]></bottom>
+      <!-- <link href="http://openjava.sourceforge.net/htdocs/"/> -->
+    </javadoc>
+  </target>
+
+  <target name="full" depends="dist,javadoc"/>
+
+  <target name="clean">
+    <!-- Delete the ${build} and ${dist} directory trees -->
+    <delete dir="${build}"/>
+    <delete file="${dist}/openjava.jar"/>
+  </target>
+
+  <target name="fullclean" depends="clean">
+    <delete dir="${htdocs}"/>
+  </target>
+
+</project>

@@ -1,0 +1,8 @@
+/* quick implementation! */
+package examples.autoimp;
+import java.awt.event.*;
+public class Test instantiates AutoImplementerClass
+    implements WindowListener
+{
+    public void windowClosed( WindowEvent e ) { System.exit( 0 ); }
+}

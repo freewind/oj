@@ -1,0 +1,22 @@
+import cristophe;
+
+import openjava.mop.*;
+import openjava.ptree.*;
+
+/**
+ * The class <code>SigPrintClass</code> prints out the signature of
+ * public methods in the class metaobject.
+ */
+public class SigPrintClass instantiates Metaclass extends OJClass {
+	public ClassDeclaration translateDefinition(
+		Environment env,
+		ClassDeclaration decl) {
+		OJMethod[] m = getMethods();
+
+		for (int i = 0; i < m.length; ++i) {
+			System.out.println(m[i].signature());
+		}
+
+		return decl;
+	}
+}

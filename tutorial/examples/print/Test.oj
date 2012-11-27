@@ -1,0 +1,107 @@
+/*
+ * Test.java
+ *
+ * comments here.
+ *
+ * @author   Michiaki Tatsubori
+ * @version  %VERSION% %DATE%
+ * @see      java.lang.Object
+ *
+ * COPYRIGHT 1998 by Michiaki Tatsubori, ALL RIGHTS RESERVED.
+ */
+package examples.print;
+
+
+import java.awt.Panel;
+import java.util.*;
+import java.io.PrintStream;
+
+
+/**
+ * The class <code>Test</code>
+ * <p>
+ * For example
+ * <pre>
+ * </pre>
+ * <p>
+ *
+ * @author   Michiaki Tatsubori
+ * @version  1.0
+ * @since    %SOFTWARE% 1.0
+ * @see java.lang.Object
+ */
+public class Test instantiates Printer
+     extends Panel
+{
+    private int iii = 0;
+
+    private Test n = null;
+
+    private String str = "string";
+
+    public Test() {
+	super();
+    }
+
+    /**
+     * @param  
+     * @return  
+     * @exception  
+     * @see java.lang.Object
+     */
+    public static void main( String[] argv ) {
+	PrintStream out = System.out;
+	PrintStream error = java.lang.System.err;
+	out.println( "Hello" + " " + "World" );
+	Test n = new Test();
+	java.lang.System.err.println( "done" );
+    }
+
+    public void hoge() {
+	Local l = new Local();
+	System.out.println( l.foo );
+	System.out.println( l.bar.str );
+    }
+
+    public Test( String str ) {
+	this.str = str;
+	n = null;
+    }
+
+    public int foo( int iii ) {
+	switch (iii) {
+	case 0:
+	  return 0;
+	case 1: {
+	  String str = null;
+	}
+	case 2:
+	case 3:
+	case 4: {
+	  String ppp = null;
+	}
+	default:
+	}
+	return iii;
+    }
+
+    public String toString() {
+	if (n == null)  return str;
+	return str + n;
+    }
+
+}
+
+class Local instantiates Printer
+{
+    String foo = null;
+    Local2 bar = new Local2();
+    public final String getFoo( Integer i ) {
+	return foo;
+    }
+}
+
+class Local2
+{
+    String str = "" + "TEST";
+}
